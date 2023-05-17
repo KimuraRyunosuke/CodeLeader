@@ -10,26 +10,32 @@
 
   ログイン--ID/パスワード認証-->メニュー
 
-  メニュー-->機能A-1
-  メニュー-->機能B-1
-  メニュー-->機能C-1
-  メニュー-->機能D-1
+  メニュー-->ホーム
+  メニュー-->サーチ
+  メニュー-->マイページ
+  メニュー-->掲示板
 
-  subgraph funcA [機能A]
-    機能A-1
+  subgraph funcA [ホーム]
+    ホーム-->ランキング
+    ホーム-->称号
+    ホーム-->レベル
   end
 
-  subgraph funcB [機能B]
-    機能B-1-->機能B-2
+  subgraph funcB [サーチ]
+    サーチ-->Java
+    サーチ-->C
+    サーチ-->Python
   end
 
-  subgraph funcC [機能C]
-    機能C-1-->機能C-2
-    機能C-1-->機能C-3
+  subgraph funcC [マイページ]
+    マイページ-->お気に入り
+    マイページ-->閲覧履歴
+    マイページ-->投稿一覧
   end
 
-  subgraph funcD [機能D]
-    機能D-1-->機能D-2-->機能D-3
+  subgraph funcD [掲示板]
+    掲示板-->閲覧
+    掲示板-->投稿
   end
 
   subgraph header [ヘッダ]
