@@ -7,7 +7,7 @@ a {
 }
 header {
     width: 100%;
-    height: 30px;
+    height: 35px;
     margin:0;
     background-color: aqua;
 }
@@ -29,4 +29,18 @@ header {
 #name a {
     text-align: right;
     color:black
+}
+footer {
+    position: fixed;
+    bottom: 5px;
+    width: 100%;
+}
+#menu {
+    margin-left: auto;
+    margin-right: auto;
+    width:90%;
+    height:60px;
+    background:rgb(104, 215, 255);
+    border-radius:30px;
+    text-align: center;
 }
