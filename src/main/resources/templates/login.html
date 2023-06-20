@@ -6,21 +6,12 @@
     <title>CodeLeader</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width">
-    <link th:href="@{/css/reset.css}" rel="stylesheet" type="text/css"></head>
     <link th:href="@{/css/stylesheet.css}" rel="stylesheet" type="text/css"></head>
 
 <body>
 <header>
     <div id="status">
-        <a href="/User">
-            <p th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}" />
-        </a>
-    </div>
-    <div id="name">
-        <p>
-            <a href="/User" th:text="${uname}"></a>
-            <a href="/login" >ログイン</a>    
-        </p>
+        <a href="/Home">ログイン</a>
     </div>
 </header>
 </body>

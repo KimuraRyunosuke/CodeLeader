@@ -1,0 +1,28 @@
+body {
+    width: 100%;
+    height: 100%;
+}
+header {
+    width: 100%;
+    height: 45px;
+    margin:0;
+    background-color: aqua;
+}
+#status {
+    margin-left: 1%;
+    float: left;
+    bottom: 0;
+}
+#status a {
+    float: inline-end;
+    text-align: left;
+    color:black
+}
+#name {
+    margin-right: 1%;
+    float: right;
+}
+#name a {
+    text-align: right;
+    color:black
+}
