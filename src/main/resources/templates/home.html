@@ -11,22 +11,27 @@
 
 <body>
 <header>
+    <h2><a href="/home">CodeLeader</a></h2>
     <div id="status">
-        <a href="/User">
+        <a href="/user">
             <p th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}" />
         </a>
     </div>
     <div id="name">
         <p>
-            <a href="/User" th:text="${uname}"></a>
-            <a href="/login" >(ログイン)</a>    
+            <a href="/user" th:text="${uname}"></a>
+            <a href="/login" ><font color="blue">(ログイン)</font></a>    
         </p>
     </div>
 </header>
 <footer>
     <div id="menu">
-        メニューバーです
-    </div> 
+        <ul>
+            <li><a href="/home" class="current">Home</a></li>
+            <li><a href="/code">Code</a></li>
+            <li><a href="/mypage">MyPage</a></li>
+        </ul>
+    </div>
 </footer>
 </body>
 

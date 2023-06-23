@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>CodeLeader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width">
+    <link th:href="@{/css/reset.css}" rel="stylesheet" type="text/css"></head>
+    <link th:href="@{/css/stylesheet.css}" rel="stylesheet" type="text/css"></head>
+
+<body>
+<header>
+    <h2><a href="/home">CodeLeader</a></h2>
+    <div id="status">
+        <a href="/user">
+            <p th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}" />
+        </a>
+    </div>
+    <div id="name">
+        <p>
+            <a href="/user" th:text="${uname}"></a>
+            <a href="/login" ><font color="blue">(ログイン)</font></a>    
+        </p>
+    </div>
+</header>
+<footer>
+    <div id="menu">
+        <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/code" class="current">Code</a></li>
+            <li><a href="/mypage">MyPage</a></li>
+        </ul>
+    </div>
+</footer>
+</body>
+
+</html>

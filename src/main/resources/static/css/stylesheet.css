@@ -7,40 +7,68 @@ a {
 }
 header {
     width: 100%;
-    height: 35px;
+    height: 60px;
     margin:0;
-    background-color: aqua;
+    background-color: #f6f8fa;
+    border-bottom:solid;
+    border-width: thin;
+    border-color: #d0d7de;
+    text-align: center;
+}
+header a {
+    color:black;
 }
 #status {
-    margin-top: 5px;
     margin-left: 1%;
     float: left;
 }
 #status a {
     float: inline-end;
     text-align: left;
-    color:black
 }
 #name {
-    margin-top: 5px;
     margin-right: 1%;
     float: right;
 }
 #name a {
     text-align: right;
-    color:black
 }
 footer {
     position: fixed;
-    bottom: 5px;
+    bottom: 0px;
     width: 100%;
 }
 #menu {
     margin-left: auto;
     margin-right: auto;
-    width:90%;
     height:60px;
-    background:rgb(104, 215, 255);
-    border-radius:30px;
+    background:white;
     text-align: center;
+}
+#menu ul {
+    display: table;
+    margin: 0 auto;
+    padding: 0;
+    width: 50%;
+    text-align: center;
+    clear: both;
+}
+#menu li {
+    display: table-cell;
+    min-width: 50px;
+}
+#menu a {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    color: #0093e8;
+    padding-bottom: 5px;
+}
+#menu a:hover {
+    color: #31d0df;
+    border-bottom: 3px solid #43efff;
+}
+#menu .current {
+    font-weight: bold;
+    color: #0580c7;
 }
