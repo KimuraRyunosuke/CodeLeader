@@ -16,7 +16,7 @@ public class CRController {
 		model.addAttribute("lv", lv);
 		model.addAttribute("title", title);
 		model.addAttribute("uname", uname);
-		return "index";
+		return "home";
 	}
 
 	@GetMapping("/code")
