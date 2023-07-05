@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -6,33 +6,40 @@
     <title>CodeLeader</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width">
-    <link th:href="@{/css/reset.css}" rel="stylesheet" type="text/css"></head>
-    <link th:href="@{/css/stylesheet.css}" rel="stylesheet" type="text/css"></head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link th:href="@{/css/stylesheet.css}" rel="stylesheet" type="text/css">
+</head>
 
 <body>
-<header>
-    <h2><a href="/home">CodeLeader</a></h2>
-    <div id="status">
-        <a href="/user">
-            <p th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}" />
-        </a>
+    <header>
+        <div class="grid grid-cols-7">
+            <div class="col-span-7">
+                <h1 class="text-xl"><a href="/home">CodeLeader</a></h1>
+            </div>
+            <div id="status" class="col-span-4"><a href="/user" class="current"
+                    th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}"></a></div>
+            <div id="name" class="col-start-5 col-span-3">
+                <a href="/user" th:text="${uname}"></a>
+                <a href="/login">
+                    <font color="blue">(ログイン) </font>
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="border-b-2 my-2">
+        <div class="grid grid-cols-2">
+            <div><h1 class="text-lg text-left pl-1">新着</h1></div>
+            <div class="text-right pr-1 rounded-full"><a href="/post" class="rounded-full bg-blue-400 border-4 border-blue-400">新規投稿</a></div></div>
+        </div>
     </div>
-    <div id="name">
-        <p>
-            <a href="/user" th:text="${uname}"></a>
-            <a href="/login" ><font color="blue">(ログイン)</font></a>    
-        </p>
-    </div>
-</header>
-<footer>
-    <div id="menu">
-        <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/code" class="current">Code</a></li>
-            <li><a href="/mypage">MyPage</a></li>
-        </ul>
-    </div>
-</footer>
+    <footer>
+        <div class="grid grid-cols-8">
+            <div id="menu" class="col-start-2 col-span-2"><a href="/home">Home</a></div>
+            <div id="menu" class="col-start-4 col-span-2"><a href="/code" class="current">Code</a></div>
+            <div id="menu" class="col-start-6 col-span-2"><a href="/mypage">MyPage</a></div>
+        </div>
+    </footer>
 </body>
 
 </html>

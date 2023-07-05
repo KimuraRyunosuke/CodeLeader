@@ -19,43 +19,18 @@ header a {
     color:black;
 }
 #status {
-    margin-left: 1%;
-    float: left;
-}
-#status a {
-    float: inline-end;
     text-align: left;
 }
 #name {
-    margin-right: 1%;
-    float: right;
-}
-#name a {
     text-align: right;
 }
 footer {
     position: fixed;
-    bottom: 0px;
+    bottom: 5px;
     width: 100%;
 }
 #menu {
-    margin-left: auto;
-    margin-right: auto;
-    height:60px;
-    background:white;
     text-align: center;
-}
-#menu ul {
-    display: table;
-    margin: 0 auto;
-    padding: 0;
-    width: 50%;
-    text-align: center;
-    clear: both;
-}
-#menu li {
-    display: table-cell;
-    min-width: 50px;
 }
 #menu a {
     display: block;

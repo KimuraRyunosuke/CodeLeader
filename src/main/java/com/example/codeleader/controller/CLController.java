@@ -45,6 +45,20 @@ public class CLController {
 		return "mypage";
 	}
 
+	@GetMapping("/post")
+	public String post(Model model) {
+		String rank = "ゲスト";
+		String lv = "--";
+		String title = "---";
+		String uname = "ゲスト";
+		model.addAttribute("rank", rank);
+		model.addAttribute("lv", lv);
+		model.addAttribute("title", title);
+		model.addAttribute("uname", uname);
+		return "post";
+	}
+
+
 	@GetMapping("/user")
 	public String user(Model model) {
 		return "user";
