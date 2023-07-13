@@ -13,25 +13,21 @@
 
 <body>
     <header>
-        <div class="grid grid-cols-7">
-            <div class="col-span-7">
-                <h1 class="text-xl"><a href="/home">CodeLeader</a></h1>
+        <div class="grid grid-cols-7 border-b border-gray-500 my-3 h-9">
+            <div id="status" class="col-span-4 pl-2">
+                <h1 class="text-xl"><a href="/home" class="text-slate-200"><img src="/img/icon.svg"
+                            class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
             </div>
-            <div id="status" class="col-span-4"><a href="/user" class="current"
-                    th:text="${rank} + ' Lv ' + ${lv} + ' 称号：' + ${title}"></a></div>
-            <div id="name" class="col-start-5 col-span-3">
-                <a href="/user" th:text="${uname}"></a>
-                <a href="/login">
-                    <font color="blue">(ログイン) </font>
-                </a>
+            <div id="name" class="col-start-5 col-span-3 pr-2">
+                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv}"></a>
             </div>
         </div>
     </header>
 
-    <div class="border-b-2 my-2">
+    <div class="border-b border-gray-500 my-2">
         <div class="grid grid-cols-2">
             <div>
-                <h1 class="text-lg text-left pl-1">新着</h1>
+                <h1 class="text-lg text-left pl-1 text-slate-200">新着</h1>
             </div>
             <div class="text-right pr-1 rounded-full"><a href="/post"
                     class="rounded-full bg-blue-400 border-4 border-blue-400">新規投稿</a></div>
@@ -40,9 +36,27 @@
 
     <footer>
         <div class="grid grid-cols-8">
-            <div id="menu" class="col-start-2 col-span-2"><a href="/home">Home</a></div>
-            <div id="menu" class="col-start-4 col-span-2"><a href="/code" class="current">Code</a></div>
-            <div id="menu" class="col-start-6 col-span-2"><a href="/mypage">MyPage</a></div>
+            <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-6 h-6 mx-auto">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                </a></div>
+            <div id="menu" class="col-start-4 col-span-2"><a href="/code"><svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mx-auto">
+                        <path fill-rule="evenodd"
+                            d="M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm14.25 6a.75.75 0 01-.22.53l-2.25 2.25a.75.75 0 11-1.06-1.06L15.44 12l-1.72-1.72a.75.75 0 111.06-1.06l2.25 2.25c.141.14.22.331.22.53zm-10.28-.53a.75.75 0 000 1.06l2.25 2.25a.75.75 0 101.06-1.06L8.56 12l1.72-1.72a.75.75 0 10-1.06-1.06l-2.25 2.25z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a></div>
+            <div id="menu" class="col-start-6 col-span-2"><a href="/mypage"><svg xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                        class="w-6 h-6 mx-auto">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                </a></div>
         </div>
     </footer>
 </body>
