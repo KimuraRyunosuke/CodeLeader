@@ -24,26 +24,35 @@
         </div>
     </header>
 
-    <div class="mt-8">
-        <div class="border-b-2">
-            <h1 class="text-lg text-left pl-1">＜ 新規投稿 ＞</h1>
+    <div class="mt-3">
+        <div class="my-2">
+            <h1 class="text-lg text-center pl-1 text-slate-200">＜ 新規投稿 ＞</h1>
         </div>
+
         <form class="w-10/12 mx-auto mt-6 md:max-w-md">
             <div class="mb-8">
-                <label for="title" class="text-sm block">タイトル</label>
+                <label for="title" class="text-slate-200 text-sm block">タイトル</label>
                 <input type="text" id="title"
-                    class="w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-500 placeholder-opacity-50"
+                    class="bg-[#2d2b2b] text-slate-200 w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-100 placeholder-opacity-50"
                     placeholder="title input">
             </div>
+            <label for="url" class="text-slate-200 text-sm block">Github Code URL</label>
             <div class="mb-8">
-                <label for="url" class="text-sm block">Github Code URL</label>
                 <input type="url" id="url"
-                    class="w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-500 placeholder-opacity-50"
+                    class="bg-[#2d2b2b] text-slate-200 w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-100 placeholder-opacity-50"
                     placeholder="URL input">
+                <div class="mb-2 text-center">
+                    <button type="button" class="add my-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="currentColor" class="w-8 h-8 fill-blue-500 hover:fill-sky-700">
+                            <path fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </form>
     </div>
-
     <footer>
         <div class="grid grid-cols-8">
             <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
@@ -72,3 +81,10 @@
 </body>
 
 </html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).on("click", ".add", function () {
+        $(this).parent().parent().children("input").clone(true).insertBefore($(this).parent().find("button"));
+    });
+</script>
