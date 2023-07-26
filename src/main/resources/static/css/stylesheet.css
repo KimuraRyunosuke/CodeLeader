@@ -17,7 +17,7 @@ header a {
 }
 footer {
     position: fixed;
-    bottom: 5px;
+    bottom: 0px;
     width: 100%;
 }
 #menu {

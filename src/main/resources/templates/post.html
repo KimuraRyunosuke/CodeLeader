@@ -36,25 +36,36 @@
                     class="bg-[#2d2b2b] text-slate-200 w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-100 placeholder-opacity-50"
                     placeholder="title input">
             </div>
-            <label for="url" class="text-slate-200 text-sm block">Github Code URL</label>
-            <div class="mb-8">
+
+            <label for="message" class="block text-sm mb-2 font-medium text-gray-900 dark:text-white">コメント</label>
+            <textarea id="message mb-8" rows="4"
+                class="block p-2.5 w-full mb-8 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="ここに投稿するコードの概要を書いてください"></textarea>
+
+            <div class="flex">
+                <label for="url" class="text-slate-200 text-sm py-2 block">Github Code URL</label>
+                <button type="button" class="add mx-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="currentColor" class="w-8 h-8 fill-blue-500 hover:fill-sky-700">
+                        <path fill-rule="evenodd"
+                            d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-10 text-center" id="inputarea">
                 <input type="url" id="url"
                     class="bg-[#2d2b2b] text-slate-200 w-full py-2 border-b focus:outline-none focus:border-b-2 focus:border-indigo-500 placeholder-gray-100 placeholder-opacity-50"
                     placeholder="URL input">
-                <div class="mb-2 text-center">
-                    <button type="button" class="add my-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                            fill="currentColor" class="w-8 h-8 fill-blue-500 hover:fill-sky-700">
-                            <path fill-rule="evenodd"
-                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
+            </div>
+
+            <div class="flex justify-center mb-20">
+                <button type="submit" class="rounded-full bg-blue-500 hover:bg-sky-700">　投稿　</button>
             </div>
         </form>
     </div>
+
     <footer>
-        <div class="grid grid-cols-8">
+        <div class="grid grid-cols-8 bg-[#2d2b2b]">
             <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-6 h-6 mx-auto">
@@ -85,6 +96,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).on("click", ".add", function () {
-        $(this).parent().parent().children("input").clone(true).insertBefore($(this).parent().find("button"));
+        let clonedInput = document.getElementById("inputarea").children[0].cloneNode(true);
+        clonedInput.value = "";
+        document.getElementById("inputarea").append(clonedInput);
+        //$(this).parent().parent().children("input").clone(true).insertBefore($(this).parent().find("button"));
     });
 </script>
