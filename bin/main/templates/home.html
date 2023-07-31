@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>CodeLeader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link th:href="@{/css/stylesheet.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/img/icon.svg}" rel="icon">
+</head>
+
+<body>
+    <header>
+        <div class="grid grid-cols-7 border-b border-gray-500 my-3 h-9">
+            <div id="status" class="col-span-4 pl-2">
+                <h1 class="text-xl"><a href="/home" class="text-slate-200"><img src="/img/icon.svg" class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
+            </div>
+            <div id="name" class="col-start-5 col-span-3 pr-2">
+                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv}"></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="border-b border-gray-500 my-2">
+        <h1 class="text-lg text-left pl-1 text-slate-200">おすすめコード</h1>
+    </div>
+
+    <div class="border-b border-gray-500 my-2">
+        <h1 class="text-lg text-left pl-1 text-slate-200">チュートリアル</h1>
+    </div>
+
+    <footer>
+        <div class="grid grid-cols-8">
+            <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="w-6 h-6 mx-auto">
+                        <path
+                            d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" />
+                        <path
+                            d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
+                    </svg>
+                </a></div>
+            <div id="menu" class="col-start-4 col-span-2"><a href="/code"><svg xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                        class="w-6 h-6 mx-auto">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                    </svg>
+                </a></div>
+            <div id="menu" class="col-start-6 col-span-2"><a href="/mypage"><svg xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                        class="w-6 h-6 mx-auto">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                </a></div>
+        </div>
+    </footer>
+</body>
+
+</html>
