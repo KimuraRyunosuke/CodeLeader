@@ -17,6 +17,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// MySQLの依存関係を追加
+    implementation 'mysql:mysql-connector-java:8.0.26'
 }
 
 tasks.named('test') {
