@@ -1,6 +1,6 @@
 ```mermaid　
 erDiagram
-    entity user {
+    user {
         bigint id PK
         String name
         int lv
@@ -9,7 +9,7 @@ erDiagram
         int rank
     }
 
-    entity post {
+    post {
         bigint id PK
         bigint user_id FK "user"
         string title
@@ -18,7 +18,7 @@ erDiagram
         timestamp posted_at
     }
 
-    entity code {
+    code {
         bigint id PK
         bigint code_id FK "code"
         string url
@@ -27,21 +27,21 @@ erDiagram
         int nor
     }
 
-    entity access {
+    access {
         bigint id PK
         bigint user_id FK "user"
         bigint code_id
         timestamp accessed_at
     }
 
-    entity finished_reading {
+    finished_reading {
         bigint id PK
         bigint user_id FK "user"
         bigint code_id
         timestamp finished_at
     }
 
-    entity bookmark {
+    bookmark {
         bigint id PK
         bigint user_id FK "user"
         bigint code_id
@@ -51,5 +51,4 @@ erDiagram
     user ||--o{ access : ""
     user ||--o{ finished_reading : ""
     user ||--o{ bookmark : ""
-    post ||--|{ code : ""
-```
+    post ||--|{ code : ""```
