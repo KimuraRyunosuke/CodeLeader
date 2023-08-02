@@ -51,4 +51,5 @@ erDiagram
     user ||--o{ access : ""
     user ||--o{ finished_reading : ""
     user ||--o{ bookmark : ""
-    post ||--|{ code : ""```
+    post ||--|{ code : ""
+```
