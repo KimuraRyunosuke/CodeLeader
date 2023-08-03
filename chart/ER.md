@@ -1,4 +1,4 @@
-```mermaid　
+```mermaid
 erDiagram
     user {
         bigint id PK
@@ -20,7 +20,7 @@ erDiagram
 
     code {
         bigint id PK
-        bigint code_id FK "code"
+        bigint post_id FK "code"
         string url
         int nol
         int point
