@@ -47,9 +47,26 @@ erDiagram
         bigint code_id
     }
 
+    title {
+        bigint id PK
+        bigint user_id FK "user"
+        int title_list_id
+    }
+
+    rank {
+        int id PK
+        int value
+    }
+
+    title_list {
+        int id PK
+        string title
+    }
+
     user ||--o{ post : ""
     user ||--o{ access : ""
     user ||--o{ finished_reading : ""
     user ||--o{ bookmark : ""
+    user ||--o{ title : ""
     post ||--|{ code : ""
 ```
