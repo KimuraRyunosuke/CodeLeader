@@ -13,10 +13,10 @@ public class User {
     private long id;
 
     private String name;
-    private Integer lv;
-    private Integer exp;
-    private Integer point;
-    private Integer rank;
+    private Integer lv = 0;
+    private Integer exp = 0;
+    private Integer point = 0;
+    private String rank = "Bronze";
 
     public long getId() {
         return id;
@@ -53,10 +53,10 @@ public class User {
         this.point = aPoint;
     }
 
-    public Integer getRank() {
+    public String getRank() {
         return rank;
     }
-    public void setRank(Integer aRank) {
+    public void setRank(String aRank) {
         this.rank = aRank;
     }
 

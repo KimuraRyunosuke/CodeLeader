@@ -57,6 +57,14 @@
                     </svg>
                 </a></div>
         </div>
+        <tr th:each="obj : ${list}">
+            <td th:text="${obj.id}"></td>
+            <td th:text="${obj.name}"></td>
+            <td th:text="${obj.lv}"></td>
+            <td th:text="${obj.exp}"></td>
+            <td th:text="${obj.point}"></td>
+            <td th:text="${obj.rank"></td>
+        </tr>
     </footer>
 </body>
 
