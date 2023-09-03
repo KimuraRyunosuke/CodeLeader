@@ -22,6 +22,7 @@ public class CLController {
 		String uname = "ゲスト";
 		User user = new User();
 		user.setName("A");
+		//user.setGrade("Bronze");
 		uRepository.save(user);
 		model.addAttribute("rank", rank);
 		model.addAttribute("lv", lv);
@@ -81,6 +82,19 @@ public class CLController {
 	@GetMapping("/login")
 	public String login(Model model) {
 		return "login";
+	}
+
+	@GetMapping("/edit")
+	public String edit(Model model) {
+		String rank = "ゲスト";
+		String lv = "--";
+		String title = "---";
+		String uname = "ゲスト";
+		model.addAttribute("rank", rank);
+		model.addAttribute("lv", lv);
+		model.addAttribute("title", title);
+		model.addAttribute("uname", uname);
+		return "edit";
 	}
 
 }

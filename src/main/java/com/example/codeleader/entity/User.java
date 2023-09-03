@@ -16,7 +16,7 @@ public class User {
     private Integer lv = 0;
     private Integer exp = 0;
     private Integer point = 0;
-    private String rank = "Bronze";
+    private String grade = "Bronze";
 
     public long getId() {
         return id;
@@ -53,11 +53,11 @@ public class User {
         this.point = aPoint;
     }
 
-    public String getRank() {
-        return rank;
+    public String getGrade() {
+        return grade;
     }
-    public void setRank(String aRank) {
-        this.rank = aRank;
+    public void setGrade(String aGrade) {
+        this.grade = aGrade;
     }
 
 }
