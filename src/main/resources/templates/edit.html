@@ -23,8 +23,21 @@
             </div>
         </div>
     </header>
+    <div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 stroke-blue-500 inline-block mb-1 ml-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+          </svg>          
+        <h1 class="text-xl text-slate-200 inline-block mx-2">HelloWorld.java</h1>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 stroke-blue-500 inline-block mb-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+          </svg>
+        <a href="https://github.dev/tamadalab/CodeLeader/blob/sample/HelloWorld.java" class="rounded-md bg-blue-500 border-4 border-blue-500 hover:bg-sky-700 hover:border-sky-700 mx-1">editor</a>
+    </div>
     <pre class="code">
     </pre>
+    <div class="flex justify-center inline-block">
+        <p class="rounded-md bg-teal-500 border-4 border-teal-500 hover:bg-teal-200 hover:border-teal-200 inline-block mx-1">finish</p>
+    </div>
     <footer>
         <div class="grid grid-cols-8 bg-[#2d2b2b]">
             <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
@@ -55,7 +68,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
     async function fetchData() {
-        const data = await fetch(`https://raw.githubusercontent.com/blackbird71SR/Hello-World/master/HelloWorld.java`);
+        const data = await fetch(`https://raw.githubusercontent.com/tamadalab/CodeLeader/sample/HelloWorld.java`);
         const text = await data.text();
         const res = await text.split(/\r\n|\n/);
         for(var line = 0 ; line < res.length ; line++){
