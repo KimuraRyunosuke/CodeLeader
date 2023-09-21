@@ -22,9 +22,9 @@ erDiagram
         bigint id PK
         bigint post_id FK "code"
         string url
-        int nol
+        int loc
         int point
-        int nor
+        int reader_count
     }
 
     access {
