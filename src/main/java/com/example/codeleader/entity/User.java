@@ -13,51 +13,51 @@ public class User {
     private long id;
 
     private String name;
-    private Integer lv;
-    private Integer exp;
-    private Integer point;
-    private Integer rank;
+    private Integer lv = 0;
+    private Integer exp = 0;
+    private Integer point = 0;
+    private String grade = "Bronze";
 
     public long getId() {
         return id;
     }
-    public void setId(long anId) {
-        this.id = anId;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
-    public void setName(String aName) {
-        this.name = aName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getLv() {
         return lv;
     }
-    public void setLv(Integer aLv) {
-        this.lv = aLv;
+    public void setLv(Integer lv) {
+        this.lv = lv;
     }
 
     public Integer getExp() {
         return exp;
     }
-    public void setExp(Integer anExp) {
-        this.exp = anExp;
+    public void setExp(Integer exp) {
+        this.exp = exp;
     }
 
     public Integer getPoint() {
         return point;
     }
-    public void setPoint(Integer aPoint) {
-        this.point = aPoint;
+    public void setPoint(Integer point) {
+        this.point = point;
     }
 
-    public Integer getRank() {
-        return rank;
+    public String getGrade() {
+        return grade;
     }
-    public void setRank(Integer aRank) {
-        this.rank = aRank;
+    public void setGrade(String grade) {
+        this.grade = grade;
     }
 
 }
