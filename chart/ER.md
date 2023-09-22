@@ -6,7 +6,7 @@ erDiagram
         int lv
         int exp
         int point
-        int rank
+        int grade
     }
 
     post {
@@ -53,7 +53,7 @@ erDiagram
         int title_list_id
     }
 
-    rank {
+    grade {
         int id PK
         int value
     }
