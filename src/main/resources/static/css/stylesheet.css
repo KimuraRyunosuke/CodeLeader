@@ -38,3 +38,26 @@ footer {
     font-weight: bold;
     color: #0580c7;
 }
+.code {
+    color: #fff;
+    font-family: monospace;
+    counter-reset: line-number;
+    line-height: 0.5cm;
+    overflow:auto;
+}
+  
+.code span {
+    display: block;
+}
+  
+.code span {
+    counter-increment: line-number;
+    display: list-item;
+    padding-left: 1rem;
+    margin-left: 1rem;
+}
+  
+.code span::marker {
+    content: counter(line-number);
+    color: #aaa;
+}
