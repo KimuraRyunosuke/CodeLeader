@@ -1,8 +1,9 @@
 package com.example.codeleader.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import com.example.codeleader.entity.User;
 
-public interface FinishedReadingRepository extends CrudRepository<User, Long> {
+import com.example.codeleader.entity.FinishedReading;
+
+public interface FinishedReadingRepository extends CrudRepository<FinishedReading, Long> {
     
 }
