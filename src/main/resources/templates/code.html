@@ -24,7 +24,7 @@
         </div>
     </header>
 
-    <form class="mx-auto mt-6 md:max-w-lg">
+    <form class="mx-auto mt-6 sm:max-w-xl w-10/12">
         <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
         <div class="relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -42,15 +42,36 @@
         </div>
     </form>
 
-    <div class="border-b border-gray-500 my-4">
+    <div class="border-b border-gray-500 mt-4">
         <div class="grid grid-cols-2">
             <div>
                 <h1 class="text-lg text-left pl-1 text-slate-200"> ＜ 新着 ＞ </h1>
             </div>
             <div class="text-right pr-1 rounded-full"><a href="/post"
-                    class="rounded-full bg-blue-500 border-4 border-blue-500 hover:bg-sky-700 hover:border-sky-700">新規投稿</a>
+                    class="rounded-lg bg-blue-500 border-4 border-blue-500 hover:bg-sky-700 hover:border-sky-700">新規投稿</a>
             </div>
         </div>
+    </div>
+    <div class="p-4">
+        <details class="open:bg-gray-800 hover:ring-1 open:ring-1 open:ring-white/10 open:shadow-lg p-2 rounded-lg"
+            th:each="obj : ${newCodeSets}" close>
+            <summary class="text-sm leading-6 text-white font-semibold select-none">
+                <p class="mx-2 inline" th:text="${obj.title}"></p>
+                <p class="mx-2 inline" th:text="${obj.lang}"></p>
+                <p class="inline text-slate-400" th:text="${obj.postedAt}">xxxx/xx/xx/xx:xx</p>
+            </summary>
+            <div class="text-sm leading-6 text-slate-400">
+                <th:block th:if="${obj.comment}">
+                    <th:block th:each="str, stat : ${obj.comment.split('\r\n|\r|\n', -1)}">
+                        <h2 th:text="${str}" class="leading-tight"></h2>
+                    </th:block>
+                </th:block>
+                <div class="overflow-x-auto" th:each="code : ${obj.codeList}">
+                    <p class="mx-2 inline" th:text="${code.url}"></p>
+                    <p class="mx-2 inline text-slate-500" th:text="${code.lang}"></p>
+                </div>
+            </div>
+        </details>
     </div>
 
     <footer>
