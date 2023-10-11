@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.1.2'
+	id 'org.springframework.boot' version '3.1.4'
 	id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -16,8 +16,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	//lombokの依存関係を追加
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+	
+	testCompileOnly 'org.projectlombok:lombok:1.18.30'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 	// MySQLの依存関係を追加
     implementation 'mysql:mysql-connector-java:8.0.26'
 }
