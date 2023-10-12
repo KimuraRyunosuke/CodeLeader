@@ -67,7 +67,7 @@
                     </th:block>
                 </th:block>
                 <div class="overflow-x-auto" th:each="code : ${obj.codeList}">
-                    <p class="mx-2 inline" th:text="${code.url}"></p>
+                    <a th:href="@{/edit/{codeId}(codeId=${code.id})}"><p class="mx-2 inline" th:text="${code.url}"></p></a>
                     <p class="mx-2 inline text-slate-500" th:text="${code.lang}"></p>
                 </div>
             </div>
