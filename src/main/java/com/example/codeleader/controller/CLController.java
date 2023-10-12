@@ -14,6 +14,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.codeleader.CodeSet;
@@ -104,11 +105,12 @@ public class CLController {
 
 	@PostMapping("/post")
 	@Transactional(readOnly = false)
-	public String submitPost(Model model, @Validated @ModelAttribute("postData") PostData postData, BindingResult bindingResult){
+	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model){
 		if(bindingResult.hasErrors()){
 		    Integer lv = anUser.get().getLv();
 		    String uName = anUser.get().getName();
 			List<String> errorList = new ArrayList<String>();
+			System.out.println("ifOK");
 			for (ObjectError error : bindingResult.getAllErrors()) {
                 errorList.add(error.getDefaultMessage());
             }
@@ -143,10 +145,11 @@ public class CLController {
 		return "login";
 	}
 
-	@GetMapping("/edit")
-	public String edit(Model model) {
+	@GetMapping("/edit/{codeId}")
+	public String edit(Model model, @PathVariable long codeId) {
 		Integer lv = anUser.get().getLv();
 		String uName = anUser.get().getName();
+		System.out.println(codeId);
 		model.addAttribute("lv", lv);
 		model.addAttribute("uname", uName);
 		return "edit";
