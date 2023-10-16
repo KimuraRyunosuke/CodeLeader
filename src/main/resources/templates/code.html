@@ -56,18 +56,22 @@
         <details class="open:bg-gray-800 hover:ring-1 open:ring-1 open:ring-white/10 open:shadow-lg p-2 rounded-lg"
             th:each="obj : ${newCodeSets}" close>
             <summary class="text-sm leading-6 text-white font-semibold select-none">
-                <p class="mx-2 inline" th:text="${obj.title}"></p>
+                <a th:href="@{code/{postId}(postId=${obj.postId})}">
+                    <p class="mx-2 inline hover:text-slate-400" th:text="${obj.title}"></p>
+                </a>
                 <p class="mx-2 inline" th:text="${obj.lang}"></p>
                 <p class="inline text-slate-400" th:text="${obj.postedAt}">xxxx/xx/xx/xx:xx</p>
             </summary>
             <div class="text-sm leading-6 text-slate-400">
-                <th:block th:if="${obj.comment}">
+                <th:block th:if="${obj.comment}" class="pb-3">
                     <th:block th:each="str, stat : ${obj.comment.split('\r\n|\r|\n', -1)}">
                         <h2 th:text="${str}" class="leading-tight"></h2>
                     </th:block>
                 </th:block>
                 <div class="overflow-x-auto" th:each="code : ${obj.codeList}">
-                    <a th:href="@{/edit/{codeId}(codeId=${code.id})}"><p class="mx-2 inline" th:text="${code.url}"></p></a>
+                    <a th:href="@{/edit/{codeId}(codeId=${code.id})}">
+                        <p class="mx-2 inline" th:text="${code.url}"></p>
+                    </a>
                     <p class="mx-2 inline text-slate-500" th:text="${code.lang}"></p>
                 </div>
             </div>
