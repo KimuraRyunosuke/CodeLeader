@@ -54,7 +54,7 @@ footer {
     counter-increment: line-number;
     display: list-item;
     padding-left: 1rem;
-    margin-left: 1rem;
+    margin-left: 3rem;
 }
   
 .code span::marker {
