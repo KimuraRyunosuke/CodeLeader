@@ -16,6 +16,7 @@ public class Code {
 
     private long postId;
     private String url;
+    private String fileName;
     private String lang;
     private Integer loc;
     private Integer point;
