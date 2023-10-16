@@ -9,8 +9,7 @@ import java.net.URLConnection;
 public class StringURL {
     public static int getLoc(String stringUrl) {
         int lineCount = 0;
-        stringUrl = stringUrl.replace("https://github.com/", "https://raw.githubusercontent.com/");
-        stringUrl = stringUrl.replace("blob/", "");
+        stringUrl = StringURL.getRawFileURL(stringUrl);
         try {
             URL url = new URL(stringUrl);
             URLConnection connection = url.openConnection();
@@ -27,11 +26,28 @@ public class StringURL {
         }
         return lineCount;
     }
-    public static String getExtension(String stringUrl) {
+
+    public static String getRawFileURL(String url){
+        url = url.replace("https://github.com/", "https://raw.githubusercontent.com/");
+        url = url.replace("blob/", "");
+        return url;
+    }
+
+    public static String getEditURL(String url){
+        url = url.replace("https://github.com/", "https://github.dev/");
+        return url;
+    }
+
+    public static String getExtension(String url) {
         String[] splitString;
         String extension = "";
-        splitString = stringUrl.split("\\.");
+        splitString = url.split("\\.");
         extension = splitString[splitString.length - 1];
         return extension;
+    }
+
+    public static String getFileName(String url){
+        String[] strings = url.split("/");
+        return strings[strings.length-1];
     }
 }
