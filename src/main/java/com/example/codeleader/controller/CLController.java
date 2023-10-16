@@ -23,6 +23,7 @@ import com.example.codeleader.StringURL;
 import com.example.codeleader.entity.Code;
 import com.example.codeleader.entity.Post;
 import com.example.codeleader.entity.User;
+import com.example.codeleader.repository.BookmarkRepository;
 import com.example.codeleader.repository.CodeRepository;
 import com.example.codeleader.repository.PostRepository;
 import com.example.codeleader.repository.UserRepository;
@@ -37,15 +38,18 @@ public class CLController {
 
 	@Autowired
 	PostRepository postRepository;
-	
+
 	@Autowired
 	CodeRepository codeRepository;
+
+	@Autowired
+	BookmarkRepository bookmarkRepository;
 
 	long id = 2;
 	Optional<User> anUser;
 
 	@PostConstruct
-	public void init(){
+	public void init() {
 		// User
 		User u1 = new User();
 		u1.setName("Yamada");
@@ -61,77 +65,64 @@ public class CLController {
 
 	@GetMapping("/home")
 	public String home(Model model) {
-		Integer lv = anUser.get().getLv();
-		String uName = anUser.get().getName();
 		Iterable<User> list = userRepository.findAll();
-		model.addAttribute("lv", lv);
-		model.addAttribute("uname", uName);
 		model.addAttribute("list", list);
+		this.setHeader(model);
 		return "home";
 	}
 
 	@GetMapping("/code")
 	public String code(Model model) {
-		Integer lv = anUser.get().getLv();
-		String uName = anUser.get().getName();
 		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
 		List<CodeSet> newCodeSets = this.makeCodeSetList(postList);
-		//System.out.println(newCodeSets);
 		model.addAttribute("newCodeSets", newCodeSets);
-		model.addAttribute("lv", lv);
-		model.addAttribute("uname", uName);
+		this.setHeader(model);
 		return "code";
+	}
+
+	@GetMapping("/code/{postId}")
+	public String code(Model model, @PathVariable long postId) {
+		Optional<Post> post = postRepository.findById(postId);
+		CodeSet codeSet = this.makeCodeSet(post.get());
+		model.addAttribute("codeSet", codeSet);
+		this.setHeader(model);
+		return "post_code";
 	}
 
 	@GetMapping("/mypage")
 	public String mypage(Model model) {
-		Integer lv = anUser.get().getLv();
-		String uName = anUser.get().getName();
-		model.addAttribute("lv", lv);
-		model.addAttribute("uname", uName);
+		this.setHeader(model);
 		return "mypage";
 	}
 
 	@GetMapping("/post")
 	public String post(Model model) {
-		Integer lv = anUser.get().getLv();
-		String uName = anUser.get().getName();
 		PostData postData = new PostData();
 		model.addAttribute("postData", postData);
-		model.addAttribute("lv", lv);
-		model.addAttribute("uname", uName);
+		this.setHeader(model);
 		return "post";
 	}
 
 	@PostMapping("/post")
 	@Transactional(readOnly = false)
-	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model){
-		if(bindingResult.hasErrors()){
-		    Integer lv = anUser.get().getLv();
-		    String uName = anUser.get().getName();
+	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
 			List<String> errorList = new ArrayList<String>();
-			System.out.println("ifOK");
 			for (ObjectError error : bindingResult.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
+				errorList.add(error.getDefaultMessage());
+			}
 			errorList = this.getCodeListErrors(errorList);
-            model.addAttribute("validationError", errorList);
-		    model.addAttribute("postData", postData);
-		    model.addAttribute("lv", lv);
-		    model.addAttribute("uname", uName);
-			System.out.println(postData.getCodeList());
+			model.addAttribute("validationError", errorList);
+			model.addAttribute("postData", postData);
+			this.setHeader(model);
 			return "post";
 		}
 		Post aPost = new Post();
 		String lang = this.getLang(postData.getCodeList());
 		this.setPost(aPost, postData.getTitle(), postData.getComment(), lang);
-		this.setCodeList(postData.getCodeList(), aPost.getId());
-		Integer lv = anUser.get().getLv();
-		String uName = anUser.get().getName();
+		this.setCodes(postData.getCodeList(), aPost.getId());
 		model.addAttribute("postData", postData);
-		model.addAttribute("lv", lv);
-		model.addAttribute("uname", uName);
-
+		this.setHeader(model);
 		return "check";
 	}
 
@@ -147,12 +138,21 @@ public class CLController {
 
 	@GetMapping("/edit/{codeId}")
 	public String edit(Model model, @PathVariable long codeId) {
+		this.setHeader(model);
+		Optional<Code> code = codeRepository.findById(codeId);
+		this.setHeader(model);
+		model.addAttribute("postId", code.get().getPostId());
+		model.addAttribute("codeTitle", code.get().getFileName());
+		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
+		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		return "edit";
+	}
+
+	public void setHeader(Model model) {
 		Integer lv = anUser.get().getLv();
 		String uName = anUser.get().getName();
-		System.out.println(codeId);
 		model.addAttribute("lv", lv);
 		model.addAttribute("uname", uName);
-		return "edit";
 	}
 
 	public void setPost(Post aPost, String title, String comment, String lang) {
@@ -166,12 +166,13 @@ public class CLController {
 		postRepository.save(aPost);
 	}
 
-	public void setCodeList(List<String> codeList, long postId){
-		for(String stringUrl : codeList){
+	public void setCodes(List<String> codeList, long postId) {
+		for (String stringUrl : codeList) {
 			Integer loc = StringURL.getLoc(stringUrl);
 			Code aCode = new Code();
 			aCode.setPostId(postId);
 			aCode.setUrl(stringUrl);
+			aCode.setFileName(StringURL.getFileName(stringUrl));
 			aCode.setLang(StringURL.getExtension(stringUrl));
 			aCode.setLoc(loc);
 			aCode.setPoint(loc / 51 + 1);
@@ -181,26 +182,27 @@ public class CLController {
 
 	public String getLang(List<String> codeList) {
 		List<String> langList = new ArrayList<>();
-		for(String stringUrl : codeList){
-		    langList.add(StringURL.getExtension(stringUrl));
+		for (String stringUrl : codeList) {
+			langList.add(StringURL.getExtension(stringUrl));
 		}
 		String language = langList.get(0);
 		String lang = langList.get(0);
-		for(Integer i = 1 ; i < langList.size() ; i++){
-			if(!lang.equals(langList.get(i))){
+		for (Integer i = 1; i < langList.size(); i++) {
+			if (!lang.equals(langList.get(i))) {
 				lang = langList.get(i);
-				language = language + ", " + lang ;
+				language = language + ", " + lang;
 			}
 		}
 		return language;
 	}
 
-	public List<String> getCodeListErrors(List<String> errorList){
+	public List<String> getCodeListErrors(List<String> errorList) {
 		errorList.remove("タイトルを入力してください");
 		errorList.remove("コメントを入力してください");
 		Integer size = errorList.size();
-		if(size <= 1) return errorList;
-		else if(size % 2 == 1){
+		if (size <= 1)
+			return errorList;
+		else if (size % 2 == 1) {
 			errorList.clear();
 			errorList.add("https://github.com/で始まるURLを入力してください");
 		}
@@ -209,18 +211,23 @@ public class CLController {
 		return errorList;
 	}
 
-	public List<CodeSet> makeCodeSetList(List<Post> postList){
+	public List<CodeSet> makeCodeSetList(List<Post> postList) {
 		List<CodeSet> codeSetList = new ArrayList<>();
-		for(Post post : postList){
-			CodeSet codeSet = new CodeSet();
-            codeSet.setTitle(post.getTitle());
-            codeSet.setComment(post.getComment());
-            codeSet.setLang(post.getLang());
-            codeSet.setPostedAt(post.getPostedAt());
-			codeSet.setCodeList(codeRepository.findByPostId(post.getId()));
-            codeSetList.add(codeSet);
+		for (Post post : postList) {
+			codeSetList.add(this.makeCodeSet(post));
 		}
-        return codeSetList;
+		return codeSetList;
+	}
+
+	public CodeSet makeCodeSet(Post post) {
+		CodeSet codeSet = new CodeSet();
+		codeSet.setPostId(post.getId());
+		codeSet.setTitle(post.getTitle());
+		codeSet.setComment(post.getComment());
+		codeSet.setLang(post.getLang());
+		codeSet.setPostedAt(post.getPostedAt());
+		codeSet.setCodeList(codeRepository.findByPostId(post.getId()));
+		return codeSet;
 	}
 
 }
