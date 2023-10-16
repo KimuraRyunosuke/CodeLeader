@@ -10,6 +10,7 @@ import lombok.Data;
 
 @Data
 public class CodeSet {
+    private long postId;
     private String title;
     private String comment;
     private String lang;
