@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.example.codeleader.CodeSet;
-import com.example.codeleader.PostData;
-import com.example.codeleader.StringURL;
+import com.example.codeleader.data.CodeSet;
+import com.example.codeleader.data.PostData;
+import com.example.codeleader.data.StringURL;
 import com.example.codeleader.entity.Bookmark;
 import com.example.codeleader.entity.Code;
 import com.example.codeleader.entity.Post;
@@ -94,6 +94,9 @@ public class CLController {
 
 	@GetMapping("/mypage")
 	public String mypage(Model model) {
+		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
+		List<CodePath> bookmarkCodePaths = this.makeCodeSetList(postList);
+		model.addAttribute("bookmarkCodeSets", bookmarkCodePaths);
 		this.setHeader(model);
 		return "mypage";
 	}
@@ -272,6 +275,13 @@ public class CLController {
 		codeSet.setPostedAt(post.getPostedAt());
 		codeSet.setCodeList(codeRepository.findByPostId(post.getId()));
 		return codeSet;
+	}
+
+	public List<CodePath> makeCodePathList(List<Bookmark> bookmark){
+
+	}
+	public CodePath mekeCodePath(long codeId){
+		
 	}
 
 }

@@ -10,4 +10,5 @@ import com.example.codeleader.entity.Bookmark;
 @Repository
 public interface BookmarkRepository extends CrudRepository<Bookmark, Long> {
     public List<Bookmark> findByUserIdAndCodeId(long userId, long codeId);
+    public List<Bookmark> findByUserId(long userId);
 }

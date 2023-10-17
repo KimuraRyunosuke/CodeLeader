@@ -1,4 +1,4 @@
-package com.example.codeleader;
+package com.example.codeleader.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.example.codeleader;
+package com.example.codeleader.data;
 
 import java.sql.Timestamp;
 import java.util.List;
