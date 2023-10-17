@@ -15,7 +15,8 @@
     <header>
         <div class="grid grid-cols-7 border-b border-gray-500 my-3 h-9">
             <div id="status" class="col-span-4 pl-2">
-                <h1 class="text-xl"><a href="/home" class="text-slate-200"><img src="/img/icon.svg" class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
+                <h1 class="text-xl"><a href="/home" class="text-slate-200"><img src="/img/icon.svg"
+                            class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
             </div>
             <div id="name" class="col-start-5 col-span-3 pr-2">
                 <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv}"></a>
@@ -23,12 +24,12 @@
         </div>
     </header>
 
-    <div class="border-b border-gray-500 my-2">
-        <h1 class="text-lg text-left pl-1 text-slate-200">おすすめコード</h1>
+    <div class="my-2 h-40">
+        <h1 class="border-b border-gray-500 text-lg text-left pl-1 text-slate-200">おすすめコード</h1>
     </div>
 
-    <div class="border-b border-gray-500 my-2">
-        <h1 class="text-lg text-left pl-1 text-slate-200">チュートリアル</h1>
+    <div class="my-2 h-40">
+        <h1 class="border-b border-gray-500 text-lg text-left pl-1 text-slate-200">チュートリアル</h1>
     </div>
 
     <footer>
@@ -57,14 +58,7 @@
                     </svg>
                 </a></div>
         </div>
-        <tr th:each="obj : ${list}">
-            <td th:text="${obj.name}"></td>
-            <td th:text="${obj.lv}"></td>
-            <td th:text="${obj.exp}"></td>
-            <td th:text="${obj.point}"></td>
-            <td th:text="${obj.grade}"></td>
-        </tr>
-        </footer>
+    </footer>
 </body>
 
 </html>
