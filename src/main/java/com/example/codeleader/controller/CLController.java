@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.codeleader.CodeSet;
 import com.example.codeleader.PostData;
 import com.example.codeleader.StringURL;
+import com.example.codeleader.entity.Bookmark;
 import com.example.codeleader.entity.Code;
 import com.example.codeleader.entity.Post;
 import com.example.codeleader.entity.User;
@@ -45,7 +47,7 @@ public class CLController {
 	@Autowired
 	BookmarkRepository bookmarkRepository;
 
-	long id = 2;
+	long userId = 2;
 	Optional<User> anUser;
 
 	@PostConstruct
@@ -60,7 +62,7 @@ public class CLController {
 		User u3 = new User();
 		u3.setName("Sato");
 		userRepository.save(u3);
-		anUser = userRepository.findById(id);
+		anUser = userRepository.findById(userId);
 	}
 
 	@GetMapping("/home")
@@ -76,6 +78,7 @@ public class CLController {
 		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
 		List<CodeSet> newCodeSets = this.makeCodeSetList(postList);
 		model.addAttribute("newCodeSets", newCodeSets);
+		model.addAttribute("bookmark", false);
 		this.setHeader(model);
 		return "code";
 	}
@@ -85,6 +88,7 @@ public class CLController {
 		Optional<Post> post = postRepository.findById(postId);
 		CodeSet codeSet = this.makeCodeSet(post.get());
 		model.addAttribute("codeSet", codeSet);
+		model.addAttribute("bookmark", false);
 		this.setHeader(model);
 		return "post_code";
 	}
@@ -140,11 +144,52 @@ public class CLController {
 	public String edit(Model model, @PathVariable long codeId) {
 		this.setHeader(model);
 		Optional<Code> code = codeRepository.findById(codeId);
-		this.setHeader(model);
+		model.addAttribute("codeId", codeId);
 		model.addAttribute("postId", code.get().getPostId());
 		model.addAttribute("codeTitle", code.get().getFileName());
 		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
 		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+			return "edit_bookmark";
+		}
+		return "edit";
+	}
+
+	@PostMapping(value = "/edit/{codeId}", params = "bookmark")
+	@Transactional(readOnly = false)
+	public String bookmark(Model model, @PathVariable long codeId) {
+		System.out.println("ok");
+		this.setHeader(model);
+		Optional<Code> code = codeRepository.findById(codeId);
+		model.addAttribute("codeId", codeId);
+		model.addAttribute("postId", code.get().getPostId());
+		model.addAttribute("codeTitle", code.get().getFileName());
+		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
+		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		if (bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+			Bookmark aBookmark = new Bookmark();
+			aBookmark.setUserId(userId);
+			aBookmark.setCodeId(codeId);
+			bookmarkRepository.save(aBookmark);
+		}
+		return "edit_bookmark";
+	}
+
+	@PostMapping(value = "/edit/{codeId}", params = "remove")
+	@Transactional(readOnly = false)
+	public String removeBookmark(Model model, @PathVariable long codeId) {
+		this.setHeader(model);
+		Optional<Code> code = codeRepository.findById(codeId);
+		model.addAttribute("codeId", codeId);
+		model.addAttribute("postId", code.get().getPostId());
+		model.addAttribute("codeTitle", code.get().getFileName());
+		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
+		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+			bookmarkRepository
+					.delete(bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).get(0));
+		}
+		model.addAttribute("bookmark", true);
 		return "edit";
 	}
 
@@ -158,7 +203,7 @@ public class CLController {
 	public void setPost(Post aPost, String title, String comment, String lang) {
 		long millis = System.currentTimeMillis();
 		Timestamp timestamp = new Timestamp(millis);
-		aPost.setUserId(id);
+		aPost.setUserId(userId);
 		aPost.setTitle(title);
 		aPost.setComment(comment);
 		aPost.setLang(lang);
