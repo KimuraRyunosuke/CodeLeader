@@ -33,19 +33,25 @@
     <table class="text-slate-400 text-md w-10/12 sm:max-w-lg mx-auto my-3">
         <thead class="text-left border-b border-slate-600">
             <tr>
-                <th class="w-5/10">FileName</th>
-                <th class="w-3/10">Lang</th>
-                <th class="w-1/10">Point</th>
+                <th>FileName</th>
+                <th>Language</th>
+                <th class="text-right">Point</th>
             </tr>
         </thead>
         <tbody th:each="code : ${codeSet.codeList}">
             <tr>
-                <td th:text="${code.fileName}" class="hover:text-blue-600"></td>
+                <td><a th:href="@{/edit/{codeId}(codeId=${code.id})}" th:text="${code.fileName}" class="hover:text-blue-600"></a></td>
                 <td th:text="${code.lang}"></td>
                 <td class="text-right" th:text="${code.point}"></td>
             </tr>
         </tbody>
     </table>
+
+    <div class="text-sm mx-auto my-5 text-center">
+        <h2 class="text-slate-400 inline">作成日時：</h2>
+        <h2 th:text="${codeSet.postedAt}" class="text-slate-400 inline"></h2>    
+    </div>
+
     <footer>
         <div class="grid grid-cols-8 bg-[#2d2b2b]">
             <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg

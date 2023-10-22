@@ -42,7 +42,7 @@
         </div>
     </form>
 
-    <div class="mt-4 h-40">
+    <div class="mt-4">
         <div class="grid grid-cols-2">
             <div>
                 <h1 class="border-b border-gray-500 text-lg text-left pl-1 text-slate-200"> ＜ 新着 ＞ </h1>
@@ -51,9 +51,7 @@
                     class="rounded-lg bg-blue-500 border-4 border-blue-500 hover:bg-sky-700 hover:border-sky-700">新規投稿</a>
             </div>
         </div>
-    </div>
-    <div class="p-4">
-        <details class="open:bg-gray-800 hover:ring-1 open:ring-1 open:ring-white/10 open:shadow-lg p-2 rounded-lg"
+        <details class="mt-2 open:bg-gray-800 hover:ring-1 open:ring-1 open:ring-white/10 open:shadow-lg p-2 rounded-lg"
             th:each="obj : ${newCodeSets}" close>
             <summary class="text-sm leading-6 text-white font-semibold select-none">
                 <a th:href="@{code/{postId}(postId=${obj.postId})}">

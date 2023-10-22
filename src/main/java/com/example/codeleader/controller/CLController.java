@@ -17,13 +17,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.codeleader.data.CodePath;
 import com.example.codeleader.data.CodeSet;
 import com.example.codeleader.data.PostData;
 import com.example.codeleader.data.StringURL;
+import com.example.codeleader.entity.Access;
 import com.example.codeleader.entity.Bookmark;
 import com.example.codeleader.entity.Code;
 import com.example.codeleader.entity.Post;
 import com.example.codeleader.entity.User;
+import com.example.codeleader.repository.AccessRepository;
 import com.example.codeleader.repository.BookmarkRepository;
 import com.example.codeleader.repository.CodeRepository;
 import com.example.codeleader.repository.PostRepository;
@@ -46,6 +49,9 @@ public class CLController {
 	@Autowired
 	BookmarkRepository bookmarkRepository;
 
+	@Autowired
+	AccessRepository accessRepository;
+
 	long userId = 2;
 	Optional<User> anUser;
 
@@ -61,7 +67,7 @@ public class CLController {
 		User u3 = new User();
 		u3.setName("Sato");
 		userRepository.save(u3);
-		anUser = userRepository.findById(userId);
+		anUser = userRepository.findById(this.userId);
 	}
 
 	@GetMapping("/home")
@@ -74,37 +80,30 @@ public class CLController {
 
 	@GetMapping("/code")
 	public String code(Model model) {
-		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
-		List<CodeSet> newCodeSets = this.makeCodeSetList(postList);
-		model.addAttribute("newCodeSets", newCodeSets);
-		model.addAttribute("bookmark", false);
+		this.setNewCodeSets(model);
 		this.setHeader(model);
 		return "code";
 	}
 
 	@GetMapping("/code/{postId}")
 	public String code(Model model, @PathVariable long postId) {
-		Optional<Post> post = postRepository.findById(postId);
-		CodeSet codeSet = this.makeCodeSet(post.get());
-		model.addAttribute("codeSet", codeSet);
-		model.addAttribute("bookmark", false);
+		this.setCodeSet(model, postId);
 		this.setHeader(model);
 		return "post_code";
 	}
 
 	@GetMapping("/mypage")
 	public String mypage(Model model) {
-		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
-		List<CodePath> bookmarkCodePaths = this.makeCodeSetList(postList);
-		model.addAttribute("bookmarkCodeSets", bookmarkCodePaths);
 		this.setHeader(model);
+		this.setBookmarkCodePaths(model);
+		this.setAccessCodePaths(model);
+		this.setMyCodeSets(model);
 		return "mypage";
 	}
 
 	@GetMapping("/post")
 	public String post(Model model) {
-		PostData postData = new PostData();
-		model.addAttribute("postData", postData);
+		model.addAttribute("postData", new PostData());
 		this.setHeader(model);
 		return "post";
 	}
@@ -124,9 +123,9 @@ public class CLController {
 			return "post";
 		}
 		Post aPost = new Post();
-		String lang = this.getLang(postData.getCodeList());
-		this.setPost(aPost, postData.getTitle(), postData.getComment(), lang);
-		this.setCodes(postData.getCodeList(), aPost.getId());
+		String lang = this.getLangs(postData.getCodeList());
+		this.addPost(aPost, postData.getTitle(), postData.getComment(), lang);
+		this.addCodes(postData.getCodeList(), aPost.getId());
 		model.addAttribute("postData", postData);
 		this.setHeader(model);
 		return "check";
@@ -143,14 +142,11 @@ public class CLController {
 	}
 
 	@GetMapping("/edit/{codeId}")
+	@Transactional(readOnly = false)
 	public String edit(Model model, @PathVariable long codeId) {
 		this.setHeader(model);
-		Optional<Code> code = codeRepository.findById(codeId);
-		model.addAttribute("codeId", codeId);
-		model.addAttribute("postId", code.get().getPostId());
-		model.addAttribute("codeTitle", code.get().getFileName());
-		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
-		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		this.access(codeId);
+		Optional<Code> code = this.setEdit(model, codeId);
 		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
 			return "edit_bookmark";
 		}
@@ -162,15 +158,10 @@ public class CLController {
 	public String bookmark(Model model, @PathVariable long codeId) {
 		System.out.println("ok");
 		this.setHeader(model);
-		Optional<Code> code = codeRepository.findById(codeId);
-		model.addAttribute("codeId", codeId);
-		model.addAttribute("postId", code.get().getPostId());
-		model.addAttribute("codeTitle", code.get().getFileName());
-		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
-		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		Optional<Code> code = this.setEdit(model, codeId);
 		if (bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
 			Bookmark aBookmark = new Bookmark();
-			aBookmark.setUserId(userId);
+			aBookmark.setUserId(this.userId);
 			aBookmark.setCodeId(codeId);
 			bookmarkRepository.save(aBookmark);
 		}
@@ -181,12 +172,7 @@ public class CLController {
 	@Transactional(readOnly = false)
 	public String removeBookmark(Model model, @PathVariable long codeId) {
 		this.setHeader(model);
-		Optional<Code> code = codeRepository.findById(codeId);
-		model.addAttribute("codeId", codeId);
-		model.addAttribute("postId", code.get().getPostId());
-		model.addAttribute("codeTitle", code.get().getFileName());
-		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
-		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		Optional<Code> code = this.setEdit(model, codeId);
 		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
 			bookmarkRepository
 					.delete(bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).get(0));
@@ -202,7 +188,47 @@ public class CLController {
 		model.addAttribute("uname", uName);
 	}
 
-	public void setPost(Post aPost, String title, String comment, String lang) {
+	public void setCodeSet(Model model, long postId) {
+		Optional<Post> post = postRepository.findById(postId);
+		CodeSet codeSet = this.makeCodeSet(post.get());
+		model.addAttribute("codeSet", codeSet);
+	}
+
+	public void setNewCodeSets(Model model) {
+		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
+		List<CodeSet> newCodeSets = this.makeCodeSetList(postList);
+		model.addAttribute("newCodeSets", newCodeSets);
+	}
+
+	public void setBookmarkCodePaths(Model model) {
+		List<Bookmark> bookmarkList = bookmarkRepository.findByUserIdOrderByIdDesc(this.userId);
+		List<CodePath> bookmarkCodePaths = this.makeBookmarkCodePathList(bookmarkList);
+		model.addAttribute("bookmarkCodePaths", bookmarkCodePaths);
+	}
+
+	public void setAccessCodePaths(Model model) {
+		List<Access> accessList = accessRepository.findByUserIdOrderByAccessedAtDesc(this.userId);
+		List<CodePath> accessCodePaths = this.makeAccessCodePathList(accessList);
+		model.addAttribute("accessCodePaths", accessCodePaths);
+	}
+
+	public void setMyCodeSets(Model model) {
+		List<Post> postList = postRepository.findByUserIdOrderByPostedAtDesc(this.userId);
+		List<CodeSet> myCodeSets = this.makeCodeSetList(postList);
+		model.addAttribute("myCodeSets", myCodeSets);
+	}
+
+	public Optional<Code> setEdit(Model model, long codeId){
+		Optional<Code> code = codeRepository.findById(codeId);
+		model.addAttribute("codeId", codeId);
+		model.addAttribute("postId", code.get().getPostId());
+		model.addAttribute("codeTitle", code.get().getFileName());
+		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
+		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
+		return code;
+	}
+
+	public void addPost(Post aPost, String title, String comment, String lang) {
 		long millis = System.currentTimeMillis();
 		Timestamp timestamp = new Timestamp(millis);
 		aPost.setUserId(userId);
@@ -213,7 +239,7 @@ public class CLController {
 		postRepository.save(aPost);
 	}
 
-	public void setCodes(List<String> codeList, long postId) {
+	public void addCodes(List<String> codeList, long postId) {
 		for (String stringUrl : codeList) {
 			Integer loc = StringURL.getLoc(stringUrl);
 			Code aCode = new Code();
@@ -227,20 +253,29 @@ public class CLController {
 		}
 	}
 
-	public String getLang(List<String> codeList) {
+	public String getLangs(List<String> codeList) {
 		List<String> langList = new ArrayList<>();
 		for (String stringUrl : codeList) {
 			langList.add(StringURL.getExtension(stringUrl));
 		}
-		String language = langList.get(0);
-		String lang = langList.get(0);
-		for (Integer i = 1; i < langList.size(); i++) {
-			if (!lang.equals(langList.get(i))) {
-				lang = langList.get(i);
-				language = language + ", " + lang;
-			}
+		String language = "";
+		for (int i = 0; i < langList.size(); i++) {
+			String lang = langList.get(i);
+			this.removeLang(langList, lang, i);
+			language += lang;
+			if ((i + 1) < langList.size())
+				language += ", ";
 		}
 		return language;
+	}
+
+	public void removeLang(List<String> langList, String lang, int start) {
+		for (int i = start + 1; i < langList.size(); i++) {
+			if (lang.equals(langList.get(i))){
+				langList.remove(i);
+				i--;
+			}
+		}
 	}
 
 	public List<String> getCodeListErrors(List<String> errorList) {
@@ -277,11 +312,46 @@ public class CLController {
 		return codeSet;
 	}
 
-	public List<CodePath> makeCodePathList(List<Bookmark> bookmark){
-
+	public List<CodePath> makeBookmarkCodePathList(List<Bookmark> bookmarkList) {
+		List<CodePath> codePathList = new ArrayList<>();
+		for (Bookmark bookmark : bookmarkList) {
+			codePathList.add(this.makeCodePath(bookmark.getCodeId()));
+		}
+		return codePathList;
 	}
-	public CodePath mekeCodePath(long codeId){
-		
+
+	public List<CodePath> makeAccessCodePathList(List<Access> accessList) {
+		List<CodePath> codePathList = new ArrayList<>();
+		for (Access access : accessList) {
+			codePathList.add(this.makeCodePath(access.getCodeId()));
+		}
+		return codePathList;
+	}
+
+	public CodePath makeCodePath(long codeId) {
+		Code code = codeRepository.findById(codeId).get();
+		CodePath codePath = new CodePath();
+		String path = postRepository.findById(code.getPostId()).get().getTitle() + "/" + code.getFileName();
+		codePath.setCodeId(code.getId());
+		codePath.setPath(path);
+		return codePath;
+	}
+
+	public void access(long codeId) {
+		List<Access> accessList = accessRepository.findByUserIdAndCodeId(this.userId, codeId);
+		long millis = System.currentTimeMillis();
+		Timestamp timestamp = new Timestamp(millis);
+		if (accessList.isEmpty()) {
+			Access access = new Access();
+			access.setUserId(this.userId);
+			access.setCodeId(codeId);
+			access.setAccessedAt(timestamp);
+			accessRepository.save(access);
+		} else {
+			Access access = accessList.get(0);
+			access.setAccessedAt(timestamp);
+			accessRepository.save(access);
+		}
 	}
 
 }
