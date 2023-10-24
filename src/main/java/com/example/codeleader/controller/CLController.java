@@ -24,11 +24,13 @@ import com.example.codeleader.data.StringURL;
 import com.example.codeleader.entity.Access;
 import com.example.codeleader.entity.Bookmark;
 import com.example.codeleader.entity.Code;
+import com.example.codeleader.entity.FinishedReading;
 import com.example.codeleader.entity.Post;
 import com.example.codeleader.entity.User;
 import com.example.codeleader.repository.AccessRepository;
 import com.example.codeleader.repository.BookmarkRepository;
 import com.example.codeleader.repository.CodeRepository;
+import com.example.codeleader.repository.FinishedReadingRepository;
 import com.example.codeleader.repository.PostRepository;
 import com.example.codeleader.repository.UserRepository;
 
@@ -52,6 +54,9 @@ public class CLController {
 	@Autowired
 	AccessRepository accessRepository;
 
+	@Autowired
+	FinishedReadingRepository finishedReadingRepository;
+
 	long userId = 2;
 	Optional<User> anUser;
 
@@ -74,37 +79,37 @@ public class CLController {
 	public String home(Model model) {
 		Iterable<User> list = userRepository.findAll();
 		model.addAttribute("list", list);
-		this.setHeader(model);
+		this.setHeaderModel(model);
 		return "home";
 	}
 
 	@GetMapping("/code")
 	public String code(Model model) {
-		this.setNewCodeSets(model);
-		this.setHeader(model);
+		this.setNewCodeSetsModel(model);
+		this.setHeaderModel(model);
 		return "code";
 	}
 
 	@GetMapping("/code/{postId}")
 	public String code(Model model, @PathVariable long postId) {
-		this.setCodeSet(model, postId);
-		this.setHeader(model);
+		this.setCodeSetModel(model, postId);
+		this.setHeaderModel(model);
 		return "post_code";
 	}
 
 	@GetMapping("/mypage")
 	public String mypage(Model model) {
-		this.setHeader(model);
-		this.setBookmarkCodePaths(model);
-		this.setAccessCodePaths(model);
-		this.setMyCodeSets(model);
+		this.setHeaderModel(model);
+		this.setBookmarkCodePathsModel(model);
+		this.setAccessCodePathsModel(model);
+		this.setMyCodeSetsModel(model);
 		return "mypage";
 	}
 
 	@GetMapping("/post")
 	public String post(Model model) {
 		model.addAttribute("postData", new PostData());
-		this.setHeader(model);
+		this.setHeaderModel(model);
 		return "post";
 	}
 
@@ -119,7 +124,7 @@ public class CLController {
 			errorList = this.getCodeListErrors(errorList);
 			model.addAttribute("validationError", errorList);
 			model.addAttribute("postData", postData);
-			this.setHeader(model);
+			this.setHeaderModel(model);
 			return "post";
 		}
 		Post aPost = new Post();
@@ -127,7 +132,7 @@ public class CLController {
 		this.addPost(aPost, postData.getTitle(), postData.getComment(), lang);
 		this.addCodes(postData.getCodeList(), aPost.getId());
 		model.addAttribute("postData", postData);
-		this.setHeader(model);
+		this.setHeaderModel(model);
 		return "check";
 	}
 
@@ -144,11 +149,17 @@ public class CLController {
 	@GetMapping("/edit/{codeId}")
 	@Transactional(readOnly = false)
 	public String edit(Model model, @PathVariable long codeId) {
-		this.setHeader(model);
+		this.setHeaderModel(model);
 		this.access(codeId);
-		Optional<Code> code = this.setEdit(model, codeId);
-		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+		this.setEditModel(model, codeId);
+		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			if (!finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+				return "finished_bookmark";
+			}
 			return "edit_bookmark";
+		}
+		if (!finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			return "finished";
 		}
 		return "edit";
 	}
@@ -157,13 +168,16 @@ public class CLController {
 	@Transactional(readOnly = false)
 	public String bookmark(Model model, @PathVariable long codeId) {
 		System.out.println("ok");
-		this.setHeader(model);
-		Optional<Code> code = this.setEdit(model, codeId);
-		if (bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+		this.setHeaderModel(model);
+		this.setEditModel(model, codeId);
+		if (bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
 			Bookmark aBookmark = new Bookmark();
 			aBookmark.setUserId(this.userId);
 			aBookmark.setCodeId(codeId);
 			bookmarkRepository.save(aBookmark);
+		}
+		if (!finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			return "finished_bookmark";
 		}
 		return "edit_bookmark";
 	}
@@ -171,61 +185,79 @@ public class CLController {
 	@PostMapping(value = "/edit/{codeId}", params = "remove")
 	@Transactional(readOnly = false)
 	public String removeBookmark(Model model, @PathVariable long codeId) {
-		this.setHeader(model);
-		Optional<Code> code = this.setEdit(model, codeId);
-		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).isEmpty()) {
+		this.setHeaderModel(model);
+		this.setEditModel(model, codeId);
+		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
 			bookmarkRepository
-					.delete(bookmarkRepository.findByUserIdAndCodeId(this.userId, code.get().getId()).get(0));
+					.delete(bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).get(0));
 		}
 		model.addAttribute("bookmark", true);
+		if (!finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			return "finished";
+		}
 		return "edit";
 	}
 
-	public void setHeader(Model model) {
+	@PostMapping(value = "/edit/{codeId}", params = "finish")
+	@Transactional(readOnly = false)
+	public String finishedReading(Model model, @PathVariable long codeId) {
+		this.updatePoint(codeId);
+		this.updateExp(codeId);
+		this.updateReaderCount(codeId);
+		this.addFinishedReading(codeId);
+		this.setEditModel(model, codeId);
+		this.setHeaderModel(model);
+		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			return "finished_bookmark";
+		}
+		return "finished";
+	}
+
+	public void setHeaderModel(Model model) {
+		anUser = userRepository.findById(this.userId);
 		Integer lv = anUser.get().getLv();
 		String uName = anUser.get().getName();
 		model.addAttribute("lv", lv);
 		model.addAttribute("uname", uName);
 	}
 
-	public void setCodeSet(Model model, long postId) {
+	public void setCodeSetModel(Model model, long postId) {
 		Optional<Post> post = postRepository.findById(postId);
 		CodeSet codeSet = this.makeCodeSet(post.get());
 		model.addAttribute("codeSet", codeSet);
 	}
 
-	public void setNewCodeSets(Model model) {
+	public void setNewCodeSetsModel(Model model) {
 		List<Post> postList = postRepository.findAllByOrderByPostedAtDesc();
 		List<CodeSet> newCodeSets = this.makeCodeSetList(postList);
 		model.addAttribute("newCodeSets", newCodeSets);
 	}
 
-	public void setBookmarkCodePaths(Model model) {
+	public void setBookmarkCodePathsModel(Model model) {
 		List<Bookmark> bookmarkList = bookmarkRepository.findByUserIdOrderByIdDesc(this.userId);
 		List<CodePath> bookmarkCodePaths = this.makeBookmarkCodePathList(bookmarkList);
 		model.addAttribute("bookmarkCodePaths", bookmarkCodePaths);
 	}
 
-	public void setAccessCodePaths(Model model) {
+	public void setAccessCodePathsModel(Model model) {
 		List<Access> accessList = accessRepository.findByUserIdOrderByAccessedAtDesc(this.userId);
 		List<CodePath> accessCodePaths = this.makeAccessCodePathList(accessList);
 		model.addAttribute("accessCodePaths", accessCodePaths);
 	}
 
-	public void setMyCodeSets(Model model) {
+	public void setMyCodeSetsModel(Model model) {
 		List<Post> postList = postRepository.findByUserIdOrderByPostedAtDesc(this.userId);
 		List<CodeSet> myCodeSets = this.makeCodeSetList(postList);
 		model.addAttribute("myCodeSets", myCodeSets);
 	}
 
-	public Optional<Code> setEdit(Model model, long codeId){
-		Optional<Code> code = codeRepository.findById(codeId);
+	public void setEditModel(Model model, long codeId) {
+		Code code = codeRepository.findById(codeId).get();
 		model.addAttribute("codeId", codeId);
-		model.addAttribute("postId", code.get().getPostId());
-		model.addAttribute("codeTitle", code.get().getFileName());
-		model.addAttribute("editUrl", StringURL.getEditURL(code.get().getUrl()));
-		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.get().getUrl()));
-		return code;
+		model.addAttribute("postId", code.getPostId());
+		model.addAttribute("codeTitle", code.getFileName());
+		model.addAttribute("editUrl", StringURL.getEditURL(code.getUrl()));
+		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.getUrl()));
 	}
 
 	public void addPost(Post aPost, String title, String comment, String lang) {
@@ -253,6 +285,48 @@ public class CLController {
 		}
 	}
 
+	public void addFinishedReading(long codeId) {
+		long millis = System.currentTimeMillis();
+		Timestamp timestamp = new Timestamp(millis);
+		FinishedReading finishedReading = new FinishedReading();
+		finishedReading.setUserId(this.userId);
+		finishedReading.setCodeId(codeId);
+		finishedReading.setFinishedAt(timestamp);
+		finishedReadingRepository.save(finishedReading);
+	}
+
+	public void updatePoint(long codeId) {
+		User user = userRepository.findById(this.userId).get();
+		Code code = codeRepository.findById(codeId).get();
+		Integer point = user.getPoint() + code.getPoint();
+		user.setPoint(point);
+		this.updateGrade(user);
+	}
+
+	public void updateGrade(User user) {
+
+	}
+
+	public void updateExp(long codeId) {
+		User user = userRepository.findById(this.userId).get();
+		Code code = codeRepository.findById(codeId).get();
+		Integer exp = user.getExp() + code.getPoint();
+		user.setExp(exp);
+		this.updateLv(user);
+	}
+
+	public void updateLv(User user) {
+		while (user.getExp() / (user.getLv() * 5) >= 1) {
+			user.setExp(user.getExp() - (user.getLv() * 5));
+			user.setLv(user.getLv() + 1);
+		}
+	}
+
+	public void updateReaderCount(long codeId) {
+		Code code = codeRepository.findById(codeId).get();
+		code.setReaderCount(code.getReaderCount() + 1);
+	}
+
 	public String getLangs(List<String> codeList) {
 		List<String> langList = new ArrayList<>();
 		for (String stringUrl : codeList) {
@@ -271,7 +345,7 @@ public class CLController {
 
 	public void removeLang(List<String> langList, String lang, int start) {
 		for (int i = start + 1; i < langList.size(); i++) {
-			if (lang.equals(langList.get(i))){
+			if (lang.equals(langList.get(i))) {
 				langList.remove(i);
 				i--;
 			}

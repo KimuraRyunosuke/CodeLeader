@@ -15,7 +15,7 @@ public class User {
     private long id;
 
     private String name;
-    private Integer lv = 0;
+    private Integer lv = 1;
     private Integer exp = 0;
     private Integer point = 0;
     private String grade = "Bronze";

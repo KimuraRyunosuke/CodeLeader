@@ -44,11 +44,11 @@
     </div>
     <pre class="code text-md">
     </pre>
-    <div class="mt-4 mb-8 flex justify-center inline-block">
-        <p
+    <form th:action="@{/edit/{codeId}(codeId=${codeId})}" method="post" class="mt-4 mb-8 flex justify-center inline-block">
+        <button type="submit" name="finish"
             class="rounded-md bg-teal-500 border-4 border-teal-500 hover:bg-teal-200 hover:border-teal-200 inline-block mx-1">
-            finish</p>
-    </div>
+            finish</button>
+    </form>
     <footer>
         <div class="grid grid-cols-8 bg-[#2d2b2b]">
             <div id="menu" class="col-start-2 col-span-2"><a href="/home" class="current"><svg
