@@ -15,8 +15,7 @@ public class StringURL {
             URLConnection connection = url.openConnection();
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            String line;
-            while ((line = reader.readLine()) != null) {
+            for (String line = reader.readLine() ; line != null ; line = reader.readLine()) {
                 lineCount++;
             }
             
