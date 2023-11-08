@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.example.codeleader.entity.TitleList;
 
 @Repository
-public interface TitleListRepository extends CrudRepository<TitleList, Long> {
+public interface TitleListRepository extends CrudRepository<TitleList, Integer> {
     
 }
