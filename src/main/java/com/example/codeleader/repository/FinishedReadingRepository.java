@@ -9,5 +9,7 @@ import com.example.codeleader.entity.FinishedReading;
 
 @Repository
 public interface FinishedReadingRepository extends CrudRepository<FinishedReading, Long> {
-    List<FinishedReading> findByUserIdAndCodeId(long userId, long codeId);
+    public List<FinishedReading> findByUserIdAndCodeId(long userId, long codeId);
+
+    public List<FinishedReading> findTop5ByOrderByFinishedAtDesc();
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.codeleader.data.CodePath;
 import com.example.codeleader.data.CodeSet;
+import com.example.codeleader.data.Id;
 import com.example.codeleader.data.PostData;
 import com.example.codeleader.data.StringURL;
 import com.example.codeleader.entity.Access;
@@ -57,7 +58,7 @@ public class CLController {
 	@Autowired
 	FinishedReadingRepository finishedReadingRepository;
 
-	long userId = 2;
+	long userId = 0;
 	Optional<User> anUser;
 
 	@PostConstruct
@@ -75,16 +76,35 @@ public class CLController {
 		anUser = userRepository.findById(this.userId);
 	}
 
-	@GetMapping("/home")
-	public String home(Model model) {
+	@PostMapping("/home")
+	public String start(@ModelAttribute("userId") Id Id, Model model) {
+		this.userId = Id.getUserId();
+		if (!this.checkLogin(model))
+			return "login";
+		this.anUser = userRepository.findById(this.userId);
 		Iterable<User> list = userRepository.findAll();
 		model.addAttribute("list", list);
+		this.setPopularityCodePathsModel(model);
+		this.setHeaderModel(model);
+		return "home";
+	}
+
+	@GetMapping("/home")
+	public String home(Model model) {
+		if (!this.checkLogin(model))
+			return "login";
+		Iterable<User> list = userRepository.findAll();
+		model.addAttribute("list", list);
+		this.setRecommendCodePathsModel(model);
+		this.setPopularityCodePathsModel(model);
 		this.setHeaderModel(model);
 		return "home";
 	}
 
 	@GetMapping("/code")
 	public String code(Model model) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.setNewCodeSetsModel(model);
 		this.setHeaderModel(model);
 		return "code";
@@ -92,6 +112,8 @@ public class CLController {
 
 	@GetMapping("/code/{postId}")
 	public String code(Model model, @PathVariable long postId) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.setCodeSetModel(model, postId);
 		this.setHeaderModel(model);
 		return "post_code";
@@ -99,6 +121,8 @@ public class CLController {
 
 	@GetMapping("/mypage")
 	public String mypage(Model model) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.setHeaderModel(model);
 		this.setBookmarkCodePathsModel(model);
 		this.setAccessCodePathsModel(model);
@@ -108,6 +132,8 @@ public class CLController {
 
 	@GetMapping("/post")
 	public String post(Model model) {
+		if (!this.checkLogin(model))
+			return "login";
 		model.addAttribute("postData", new PostData());
 		this.setHeaderModel(model);
 		return "post";
@@ -116,6 +142,8 @@ public class CLController {
 	@PostMapping("/post")
 	@Transactional(readOnly = false)
 	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model) {
+		if (!this.checkLogin(model))
+			return "login";
 		if (bindingResult.hasErrors()) {
 			List<String> errorList = new ArrayList<String>();
 			for (ObjectError error : bindingResult.getAllErrors()) {
@@ -138,17 +166,22 @@ public class CLController {
 
 	@GetMapping("/user")
 	public String user(Model model) {
+		if (!this.checkLogin(model))
+			return "login";
 		return "user";
 	}
 
 	@GetMapping("/login")
 	public String login(Model model) {
+		model.addAttribute("Id", new Id());
 		return "login";
 	}
 
 	@GetMapping("/edit/{codeId}")
 	@Transactional(readOnly = false)
 	public String edit(Model model, @PathVariable long codeId) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.setHeaderModel(model);
 		this.access(codeId);
 		this.setEditModel(model, codeId);
@@ -167,6 +200,8 @@ public class CLController {
 	@PostMapping(value = "/edit/{codeId}", params = "bookmark")
 	@Transactional(readOnly = false)
 	public String bookmark(Model model, @PathVariable long codeId) {
+		if (!this.checkLogin(model))
+			return "login";
 		System.out.println("ok");
 		this.setHeaderModel(model);
 		this.setEditModel(model, codeId);
@@ -185,6 +220,8 @@ public class CLController {
 	@PostMapping(value = "/edit/{codeId}", params = "remove")
 	@Transactional(readOnly = false)
 	public String removeBookmark(Model model, @PathVariable long codeId) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.setHeaderModel(model);
 		this.setEditModel(model, codeId);
 		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
@@ -201,6 +238,8 @@ public class CLController {
 	@PostMapping(value = "/edit/{codeId}", params = "finish")
 	@Transactional(readOnly = false)
 	public String finishedReading(Model model, @PathVariable long codeId) {
+		if (!this.checkLogin(model))
+			return "login";
 		this.updatePoint(codeId);
 		this.updateExp(codeId);
 		this.updateReaderCount(codeId);
@@ -213,12 +252,33 @@ public class CLController {
 		return "finished";
 	}
 
+	public boolean checkLogin(Model model) {
+		if (this.userId != 0) {
+			return true;
+		}
+		model.addAttribute("Id", new Id());
+		return false;
+	}
+
 	public void setHeaderModel(Model model) {
 		anUser = userRepository.findById(this.userId);
 		Integer lv = anUser.get().getLv();
 		String uName = anUser.get().getName();
 		model.addAttribute("lv", lv);
 		model.addAttribute("uname", uName);
+	}
+
+	public void setRecommendCodePathsModel(Model model) {
+		List<Code> codeList = codeRepository.findAllByOrderByReaderCountDesc();
+		List<Code> recommendCodeList = this.makeRecommendCodeList(codeList);
+		List<CodePath> recommendCodePaths = this.makeCodePathList(recommendCodeList);
+		model.addAttribute("recommendCodePaths", recommendCodePaths);
+	}
+
+	public void setPopularityCodePathsModel(Model model) {
+		List<Code> codeList = codeRepository.findAllByOrderByReaderCountDesc();
+		List<CodePath> popularityCodePaths = this.makeCodePathList(codeList);
+		model.addAttribute("popularityCodePaths", popularityCodePaths);
 	}
 
 	public void setCodeSetModel(Model model, long postId) {
@@ -367,6 +427,12 @@ public class CLController {
 		return errorList;
 	}
 
+	public List<Code> makeRecommendCodeList(List<Code> codeList) {
+		List<String> langList = this.getRecommendLang();
+		List<Code> recommendCodeList = new ArrayList<>();
+		return recommendCodeList;
+	}
+
 	public List<CodeSet> makeCodeSetList(List<Post> postList) {
 		List<CodeSet> codeSetList = new ArrayList<>();
 		for (Post post : postList) {
@@ -384,6 +450,14 @@ public class CLController {
 		codeSet.setPostedAt(post.getPostedAt());
 		codeSet.setCodeList(codeRepository.findByPostId(post.getId()));
 		return codeSet;
+	}
+
+	public List<CodePath> makeCodePathList(List<Code> codeList) {
+		List<CodePath> codePathList = new ArrayList<>();
+		for (Code code : codeList) {
+			codePathList.add(this.makeCodePath(code.getId()));
+		}
+		return codePathList;
 	}
 
 	public List<CodePath> makeBookmarkCodePathList(List<Bookmark> bookmarkList) {
@@ -411,6 +485,22 @@ public class CLController {
 		return codePath;
 	}
 
+	public List<String> makeLangList(List<FinishedReading> finishedReadingList) {
+		List<String> langList = new ArrayList<>();
+		for (FinishedReading finishedReading : finishedReadingList) {
+			langList.add(codeRepository.findById(finishedReading.getCodeId()).get().getLang());
+		}
+		if (finishedReadingList.isEmpty()) {
+			langList.add("java");
+			langList.add("java");
+			langList.add("py");
+			langList.add("py");
+			langList.add("c");
+		}
+		langList.sort(null);
+		return langList;
+	}
+
 	public void access(long codeId) {
 		List<Access> accessList = accessRepository.findByUserIdAndCodeId(this.userId, codeId);
 		long millis = System.currentTimeMillis();
@@ -426,6 +516,12 @@ public class CLController {
 			access.setAccessedAt(timestamp);
 			accessRepository.save(access);
 		}
+	}
+
+	public List<String> getRecommendLang() {
+		List<FinishedReading> recentFive = finishedReadingRepository.findTop5ByOrderByFinishedAtDesc();
+		List<String> langList = this.makeLangList(recentFive);
+		return langList;
 	}
 
 }
