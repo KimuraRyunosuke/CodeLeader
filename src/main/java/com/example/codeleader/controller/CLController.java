@@ -35,7 +35,6 @@ import com.example.codeleader.repository.FinishedReadingRepository;
 import com.example.codeleader.repository.PostRepository;
 import com.example.codeleader.repository.UserRepository;
 
-import jakarta.annotation.PostConstruct;
 
 @Controller
 public class CLController {
@@ -60,21 +59,6 @@ public class CLController {
 
 	long userId = 0;
 	Optional<User> anUser;
-
-	@PostConstruct
-	public void init() {
-		// User
-		User u1 = new User();
-		u1.setName("Yamada");
-		userRepository.save(u1);
-		User u2 = new User();
-		u2.setName("Tanaka");
-		userRepository.save(u2);
-		User u3 = new User();
-		u3.setName("Sato");
-		userRepository.save(u3);
-		anUser = userRepository.findById(this.userId);
-	}
 
 	@PostMapping("/home")
 	public String start(@ModelAttribute("userId") Id Id, Model model) {
