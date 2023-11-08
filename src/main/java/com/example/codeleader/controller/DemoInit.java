@@ -50,19 +50,59 @@ public class DemoInit {
         List<Integer> readerCount = new ArrayList<>();
         // post1
         title = "HelloWorld(java)";
-        comment = "javaで書かれたHelloWorldです.出力方法などについて学びましょう.";
+        comment = "javaで書かれたHelloWorldです.\n出力方法などjavaについて学びましょう.";
         codeList.add(
                 "https://github.com/tamadalab/CodeLeader/blob/sample/HelloWorld.java");
-        readerCount.add(5);
+        readerCount.add(9);
         this.setPost(title, comment, codeList, readerCount);
         // post2
         codeList = new ArrayList<>();
         readerCount = new ArrayList<>();
         title = "HelloWorld(python)";
-        comment = "pythonで書かれたHelloWorldです.出力方法などについて学びましょう.";
+        comment = "pythonで書かれたHelloWorldです.\n出力方法などpythonについて学びましょう.";
+        codeList.add(
+                "https://github.com/tamadalab/CodeLeader/blob/sample/HelloWorld.py");
+        readerCount.add(10);
+        this.setPost(title, comment, codeList, readerCount);
+        // post3
+        codeList = new ArrayList<>();
+        readerCount = new ArrayList<>();
+        title = "HelloWorld(c)";
+        comment = "c言語で書かれたHelloWorldです.\n出力方法などpythonについて学びましょう.";
+        codeList.add(
+                "https://github.com/tamadalab/CodeLeader/blob/sample/HelloWorld.c");
+        readerCount.add(8);
+        this.setPost(title, comment, codeList, readerCount);
+        // post3
+        codeList = new ArrayList<>();
+        readerCount = new ArrayList<>();
+        title = "BuildTool検出システム";
+        comment = "何のBuildToolを使っているか検出してくれるシステムです.\nファイルやフォルダの操作,コマンドラインツールのオプションの作り方などについて学びましょう.";
+        codeList.add(
+                "https://github.com/tamadalab/beacher/blob/main/app/src/main/java/com/github/tamadalab/beacher/Example.java");
+        readerCount.add(5);
+        codeList.add(
+                "https://github.com/tamadalab/beacher/blob/main/app/src/main/java/com/github/tamadalab/beacher/Cli.java");
+        readerCount.add(5);
+        codeList.add(
+                "https://github.com/tamadalab/beacher/blob/main/app/src/main/java/com/github/tamadalab/beacher/Beacher.java");
+        readerCount.add(5);
+        this.setPost(title, comment, codeList, readerCount);
+
+        // post4
+        codeList = new ArrayList<>();
+        readerCount = new ArrayList<>();
+        title = "CodeLeader";
+        comment = "このWebアプリのプログラムです.\nSpringBootを使用したWebアプリの作り方などについて学びましょう.";
         codeList.add(
                 "https://github.com/tamadalab/CodeLeader/blob/code/src/main/java/com/example/codeleader/controller/CLController.java");
-        readerCount.add(3);
+        readerCount.add(7);
+        codeList.add(
+                "https://github.com/tamadalab/CodeLeader/blob/code/src/main/resources/templates/mypage.html");
+        readerCount.add(6);
+        codeList.add(
+                "https://github.com/tamadalab/CodeLeader/blob/code/src/main/java/com/example/codeleader/entity/User.java");
+        readerCount.add(5);
         this.setPost(title, comment, codeList, readerCount);
 
     }
