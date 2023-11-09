@@ -19,6 +19,7 @@ footer {
     position: fixed;
     bottom: 0px;
     width: 100%;
+    background-color: #2d2b2b;
 }
 #menu {
     text-align: center;
@@ -32,7 +33,6 @@ footer {
 }
 #menu a:hover {
     color: #31d0df;
-    border-bottom: 3px solid #43efff;
 }
 #menu .current {
     font-weight: bold;
