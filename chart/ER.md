@@ -69,4 +69,7 @@ erDiagram
     user ||--o{ bookmark : ""
     user ||--o{ title : ""
     post ||--|{ code : ""
+    code ||--o{ access : ""
+    code ||--o{ finished_reading : ""
+    code ||--o{ bookmark : ""
 ```
