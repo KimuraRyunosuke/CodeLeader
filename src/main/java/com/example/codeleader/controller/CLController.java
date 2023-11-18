@@ -2,6 +2,7 @@ package com.example.codeleader.controller;
 
 import java.sql.Timestamp;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -429,8 +430,49 @@ public class CLController {
 
 	public List<Code> makeRecommendCodeList(List<Code> codeList) {
 		List<String> langList = this.getRecommendLang();
+		String prevLang = langList.get(0);
 		List<Code> recommendCodeList = new ArrayList<>();
+		List<Code> popularCodeList = codeRepository.findByLangOrderByReaderCountDesc(prevLang);
+		for (String lang : langList) {
+			if (!prevLang.equals(lang)) {
+				popularCodeList = codeRepository.findByLangOrderByReaderCountDesc(lang);
+			}
+			this.removeAlreadyRead(popularCodeList);
+			this.takeOutCodeList(popularCodeList, recommendCodeList);
+			prevLang = lang;
+		}
 		return recommendCodeList;
+	}
+
+	public void removeAlreadyRead(List<Code> popularCodeList) {
+		int cnt = 0;
+		for (int i = 0; cnt < 10; i++) {
+			if(i >= popularCodeList.size()) break;
+			Code popularCode = popularCodeList.get(i);
+			List<FinishedReading> finishedReading = finishedReadingRepository.findByUserIdAndCodeId(userId,
+					popularCode.getId());
+			if (finishedReading.isEmpty())
+				cnt++;
+			else {
+				popularCodeList.remove(i);
+				i--;
+			}
+		}
+	}
+
+	public void takeOutCodeList(List<Code> popularCodeList, List<Code> recommendCodeList) {
+		if (popularCodeList.size() >= 2) {
+			recommendCodeList.add(popularCodeList.get(0));
+			popularCodeList.remove(0);
+			recommendCodeList.add(popularCodeList.get(0));
+			popularCodeList.remove(0);
+			return;
+		}
+		while(popularCodeList.size() > 0){
+			recommendCodeList.add(popularCodeList.get(0));
+			popularCodeList.remove(0);
+		}
+		return;
 	}
 
 	public List<CodeSet> makeCodeSetList(List<Post> postList) {
@@ -497,6 +539,24 @@ public class CLController {
 			langList.add("py");
 			langList.add("c");
 		}
+		while (langList.size() < 5) {
+			Random rand = new Random();
+			int rNum = rand.nextInt(3);
+			switch (rNum) {
+				case 0:
+					langList.add("java");
+					break;
+				case 1:
+					langList.add("py");
+					break;
+				case 2:
+					langList.add("c");
+					break;
+				default:
+					langList.add("c");
+					break;
+			}
+		}
 		langList.sort(null);
 		return langList;
 	}
@@ -519,7 +579,7 @@ public class CLController {
 	}
 
 	public List<String> getRecommendLang() {
-		List<FinishedReading> recentFive = finishedReadingRepository.findTop5ByOrderByFinishedAtDesc();
+		List<FinishedReading> recentFive = finishedReadingRepository.findTop5ByUserIdOrderByFinishedAtDesc(this.userId);
 		List<String> langList = this.makeLangList(recentFive);
 		return langList;
 	}

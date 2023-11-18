@@ -26,6 +26,12 @@
 
     <h1 class="border-b border-gray-500 text-lg text-left pl-1 text-slate-200">おすすめ</h1>
     <div class="my-2 h-36 overflow-y-auto">
+        <ul th:each="obj : ${recommendCodePaths}" class="list-disc list-inside">
+            <a th:href="@{/edit/{codeId}(codeId=${obj.codeId})}">
+                <li class="pl-2 hover:text-blue-600 text-slate-200 text-md" th:text="${obj.path}"></li>
+            </a>
+        </ul>
+
     </div>
 
     <h1 class="border-b border-gray-500 text-lg text-left pl-1 text-slate-200">人気</h1>

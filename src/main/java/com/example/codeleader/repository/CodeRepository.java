@@ -12,5 +12,5 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
 
     public List<Code> findAllByOrderByReaderCountDesc();
 
-    public List<Code> findTop5ByOrderByReaderCountDesc();
+    public List<Code> findByLangOrderByReaderCountDesc(String lang);
 }

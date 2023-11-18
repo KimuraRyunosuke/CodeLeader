@@ -11,5 +11,5 @@ import com.example.codeleader.entity.FinishedReading;
 public interface FinishedReadingRepository extends CrudRepository<FinishedReading, Long> {
     public List<FinishedReading> findByUserIdAndCodeId(long userId, long codeId);
 
-    public List<FinishedReading> findTop5ByOrderByFinishedAtDesc();
+    public List<FinishedReading> findTop5ByUserIdOrderByFinishedAtDesc(long userId);
 }
