@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.example.codeleader.data.CodePath;
 import com.example.codeleader.data.CodeSet;
 import com.example.codeleader.data.Id;
+import com.example.codeleader.data.KeyWord;
 import com.example.codeleader.data.PostData;
 import com.example.codeleader.data.StringURL;
 import com.example.codeleader.entity.Access;
@@ -106,9 +107,18 @@ public class CLController {
 	public String code(Model model) {
 		if (!this.checkLogin(model))
 			return "login";
+		model.addAttribute("keyWord", new KeyWord());
 		this.setNewCodeSetsModel(model);
 		this.setHeaderModel(model);
 		return "code";
+	}
+
+	@PostMapping("/code")
+	public String search(@ModelAttribute("keyWord") KeyWord keyWord, Model model) {
+		this.setFindByPostModel(keyWord.getKey(), model);
+		this.setFindByCodeModel(keyWord.getKey(), model);
+		this.setHeaderModel(model);
+		return "result";
 	}
 
 	@GetMapping("/code/{postId}")
@@ -312,6 +322,22 @@ public class CLController {
 		model.addAttribute("myCodeSets", myCodeSets);
 	}
 
+	public void setFindByPostModel(String keyWord, Model model) {
+		List<Post> postList = postRepository.findByTitleContaining(keyWord);
+		postList.addAll(postRepository.findByCommentContaining(keyWord));
+		List<CodeSet> resultCodeSets = this.makeCodeSetList(postList);
+		model.addAttribute("resultCodeSets", resultCodeSets);
+	}
+
+	public void setFindByCodeModel(String keyWord, Model model) {
+		List<Code> codeList = codeRepository.findByFileNameContaining(keyWord);
+		List<CodePath> fileNameCodePaths = this.makeCodePathList(codeList);
+		codeList = codeRepository.findByLangContaining(keyWord);
+		List<CodePath> langCodePaths = this.makeCodePathList(codeList);
+		model.addAttribute("fileNameCodePaths", fileNameCodePaths);
+		model.addAttribute("langCodePaths", langCodePaths);
+	}
+
 	public void setEditModel(Model model, long codeId) {
 		Code code = codeRepository.findById(codeId).get();
 		model.addAttribute("codeId", codeId);
@@ -447,7 +473,8 @@ public class CLController {
 	public void removeAlreadyRead(List<Code> popularCodeList) {
 		int cnt = 0;
 		for (int i = 0; cnt < 10; i++) {
-			if(i >= popularCodeList.size()) break;
+			if (i >= popularCodeList.size())
+				break;
 			Code popularCode = popularCodeList.get(i);
 			List<FinishedReading> finishedReading = finishedReadingRepository.findByUserIdAndCodeId(userId,
 					popularCode.getId());
@@ -468,7 +495,7 @@ public class CLController {
 			popularCodeList.remove(0);
 			return;
 		}
-		while(popularCodeList.size() > 0){
+		while (popularCodeList.size() > 0) {
 			recommendCodeList.add(popularCodeList.get(0));
 			popularCodeList.remove(0);
 		}

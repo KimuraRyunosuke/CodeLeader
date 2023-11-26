@@ -10,5 +10,10 @@ import com.example.codeleader.entity.Post;
 @Repository
 public interface PostRepository extends CrudRepository<Post, Long> {
     public List<Post> findAllByOrderByPostedAtDesc();
+
     public List<Post> findByUserIdOrderByPostedAtDesc(long id);
+
+    public List<Post> findByTitleContaining(String keyWord);
+
+    public List<Post> findByCommentContaining(String keyWord);
 }
