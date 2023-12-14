@@ -19,7 +19,7 @@
                             class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
             </div>
             <div id="name" class="col-start-5 col-span-3 pr-2">
-                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv}"></a>
+                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv} + ' ' + ${rank}"></a>
             </div>
         </div>
     </header>
@@ -37,7 +37,8 @@
         </ul>    
     </div>
     <div class="flex justify-center mb-20">
-        <a href="/post" class="rounded-lg bg-blue-500 hover:bg-sky-700 mx-auto">　続けて投稿する　</a>
+        <a href="/post" class="rounded-lg bg-blue-500 hover:bg-sky-700 mr-2">　続けて投稿する　</a>
+        <a href="/mypage" class="rounded-lg bg-blue-500 hover:bg-sky-700">　MyPage　</a>
     </div>
     <footer>
         <div class="grid grid-cols-8 bg-[#2d2b2b]">
