@@ -18,6 +18,6 @@ public class User {
     private Integer lv = 1;
     private Integer exp = 0;
     private Integer point = 0;
-    private String grade = "Bronze";
+    private String grade = "D";
 
 }

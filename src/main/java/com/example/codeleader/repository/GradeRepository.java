@@ -7,5 +7,4 @@ import com.example.codeleader.entity.Grade;
 
 @Repository
 public interface GradeRepository extends CrudRepository<Grade, String> {
-    
 }
