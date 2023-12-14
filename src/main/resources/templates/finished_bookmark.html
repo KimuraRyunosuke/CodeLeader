@@ -19,7 +19,7 @@
                             class="float-left rounded-full w-7 h-7 mx-2 font-serif"> CodeLeader</a></h1>
             </div>
             <div id="name" class="col-start-5 col-span-3 pr-2">
-                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv}"></a>
+                <a href="/user" class="text-slate-200" th:text="${uname} + ' Lv ' + ${lv} + ' ' + ${rank}"></a>
             </div>
         </div>
     </header>
@@ -32,21 +32,28 @@
             </svg></a>
         <h1 class="text-xl text-slate-200 inline-block mx-2" th:text="${codeTitle}"></h1>
         <form th:action="@{/edit/{codeId}(codeId=${codeId})}" method="post" class="inline-block">
-        <button type="submit" name="remove">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="w-6 h-6 stroke-blue-500 inline-block mb-1 fill-blue-500">
-                <path fill-rule="evenodd"
-                    d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
-                    clip-rule="evenodd" />
-            </svg></button></form>
-        <a th:href="${editUrl}"
+            <button type="submit" name="remove">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                    class="w-6 h-6 stroke-blue-500 inline-block mb-1 fill-blue-500">
+                    <path fill-rule="evenodd"
+                        d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+                        clip-rule="evenodd" />
+                </svg></button>
+        </form>
+        <a th:href="@{/memo/{codeId}(codeId=${codeId})}" target="newtab"> <svg xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                class="w-6 h-6 stroke-blue-500 inline-block mb-1">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+        </a>
+        <a th:href="${editUrl}" target="newtab"
             class="rounded-md bg-blue-500 border-4 border-blue-500 hover:bg-sky-700 hover:border-sky-700 mx-1">editor</a>
     </div>
     <pre class="code text-md">
     </pre>
     <div class="mt-4 mb-8 flex justify-center inline-block">
-        <button 
-            class="rounded-md bg-teal-800 border-4 border-teal-800 inline-block mx-1">
+        <button class="rounded-md bg-teal-800 border-4 border-teal-800 inline-block mx-1">
             finish</button>
     </div>
     <footer>
