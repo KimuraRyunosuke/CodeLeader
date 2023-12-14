@@ -28,12 +28,16 @@ import com.example.codeleader.entity.Access;
 import com.example.codeleader.entity.Bookmark;
 import com.example.codeleader.entity.Code;
 import com.example.codeleader.entity.FinishedReading;
+import com.example.codeleader.entity.Grade;
+import com.example.codeleader.entity.Memo;
 import com.example.codeleader.entity.Post;
 import com.example.codeleader.entity.User;
 import com.example.codeleader.repository.AccessRepository;
 import com.example.codeleader.repository.BookmarkRepository;
 import com.example.codeleader.repository.CodeRepository;
 import com.example.codeleader.repository.FinishedReadingRepository;
+import com.example.codeleader.repository.GradeRepository;
+import com.example.codeleader.repository.MemoRepository;
 import com.example.codeleader.repository.PostRepository;
 import com.example.codeleader.repository.UserRepository;
 
@@ -60,21 +64,40 @@ public class CLController {
 	@Autowired
 	FinishedReadingRepository finishedReadingRepository;
 
+	@Autowired
+	MemoRepository memoRepository;
+
+	@Autowired
+	GradeRepository gradeRepository;
+
 	long userId = 0;
 	Optional<User> anUser;
 
 	@PostConstruct
 	public void init() {
 		// User
-		User u1 = new User();
-		u1.setName("Yamada");
-		userRepository.save(u1);
-		User u2 = new User();
-		u2.setName("Tanaka");
-		userRepository.save(u2);
-		User u3 = new User();
-		u3.setName("Sato");
-		userRepository.save(u3);
+		User user = new User();
+		user.setName("Yamada");
+		userRepository.save(user);
+		user = new User();
+		user.setName("Tanaka");
+		userRepository.save(user);
+		user = new User();
+		user.setName("Sato");
+		userRepository.save(user);
+
+		// ランクの閾値
+		Grade grade = new Grade();
+		grade.setId("A");
+		grade.setValue(30);
+		gradeRepository.save(grade);
+		grade.setId("B");
+		grade.setValue(20);
+		gradeRepository.save(grade);
+		grade.setId("C");
+		grade.setValue(10);
+		gradeRepository.save(grade);
+
 		anUser = userRepository.findById(this.userId);
 	}
 
@@ -128,6 +151,32 @@ public class CLController {
 		this.setCodeSetModel(model, postId);
 		this.setHeaderModel(model);
 		return "post_code";
+	}
+
+	@GetMapping("/memo/{codeId}")
+	@Transactional(readOnly = false)
+	public String memo(Model model, @PathVariable long codeId) {
+		if (!this.checkLogin(model))
+			return "login";
+		this.setMemoModel(model, codeId);
+		this.setHeaderModel(model);
+		return "memo";
+	}
+
+	@PostMapping("/memo/{codeId}")
+	@Transactional(readOnly = false)
+	public String saveMemo(Model model, @ModelAttribute("memo") Memo bcMemo, @PathVariable long codeId) {
+		Memo memo = memoRepository.findByUserIdAndCodeId(this.userId, codeId).get(0);
+		if (memo.getAddPoint() > 0) {
+			this.updateMPoint(memo.getId());
+			this.updateMExp(memo.getId());
+			memo.setAddPoint(0);
+		}
+		memo.setText(bcMemo.getText());
+		memoRepository.save(memo);
+		this.setHeaderModel(model);
+		this.setMemoModel(model, codeId);
+		return "memo";
 	}
 
 	@GetMapping("/mypage")
@@ -251,10 +300,12 @@ public class CLController {
 	public String finishedReading(Model model, @PathVariable long codeId) {
 		if (!this.checkLogin(model))
 			return "login";
-		this.updatePoint(codeId);
-		this.updateExp(codeId);
-		this.updateReaderCount(codeId);
-		this.addFinishedReading(codeId);
+		if (finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
+			this.updatePoint(codeId);
+			this.updateExp(codeId);
+			this.updateReaderCount(codeId);
+			this.addFinishedReading(codeId);
+		}
 		this.setEditModel(model, codeId);
 		this.setHeaderModel(model);
 		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
@@ -275,8 +326,10 @@ public class CLController {
 		anUser = userRepository.findById(this.userId);
 		Integer lv = anUser.get().getLv();
 		String uName = anUser.get().getName();
+		String rank = anUser.get().getGrade();
 		model.addAttribute("lv", lv);
 		model.addAttribute("uname", uName);
+		model.addAttribute("rank", rank);
 	}
 
 	public void setRecommendCodePathsModel(Model model) {
@@ -347,6 +400,13 @@ public class CLController {
 		model.addAttribute("codeUrl", StringURL.getRawFileURL(code.getUrl()));
 	}
 
+	public void setMemoModel(Model model, long codeId) {
+		Code code = codeRepository.findById(codeId).get();
+		model.addAttribute("codeId", codeId);
+		model.addAttribute("codeTitle", code.getFileName());
+		model.addAttribute("memo", this.getMemo(codeId));
+	}
+
 	public void addPost(Post aPost, String title, String comment, String lang) {
 		long millis = System.currentTimeMillis();
 		Timestamp timestamp = new Timestamp(millis);
@@ -390,8 +450,23 @@ public class CLController {
 		this.updateGrade(user);
 	}
 
-	public void updateGrade(User user) {
+	public void updateMPoint(long memoId) {
+		User user = userRepository.findById(this.userId).get();
+		Memo memo = memoRepository.findById(memoId).get();
+		Integer point = user.getPoint() + memo.getAddPoint();
+		user.setPoint(point);
+		this.updateGrade(user);
+	}
 
+	public void updateGrade(User user) {
+		if (user.getPoint() >= gradeRepository.findById("A").get().getValue()) {
+			user.setGrade("A");
+		} else if (user.getPoint() >= gradeRepository.findById("B").get().getValue()) {
+			user.setGrade("B");
+		} else if (user.getPoint() >= gradeRepository.findById("C").get().getValue()) {
+			user.setGrade("C");
+		}
+		userRepository.save(user);
 	}
 
 	public void updateExp(long codeId) {
@@ -402,16 +477,40 @@ public class CLController {
 		this.updateLv(user);
 	}
 
+	public void updateMExp(long memoId) {
+		User user = userRepository.findById(this.userId).get();
+		Memo memo = memoRepository.findById(memoId).get();
+		Integer exp = user.getExp() + memo.getAddPoint();
+		user.setExp(exp);
+		this.updateLv(user);
+	}
+
 	public void updateLv(User user) {
 		while (user.getExp() / (user.getLv() * 5) >= 1) {
 			user.setExp(user.getExp() - (user.getLv() * 5));
 			user.setLv(user.getLv() + 1);
 		}
+		userRepository.save(user);
 	}
 
 	public void updateReaderCount(long codeId) {
 		Code code = codeRepository.findById(codeId).get();
 		code.setReaderCount(code.getReaderCount() + 1);
+		codeRepository.save(code);
+	}
+
+	public Memo getMemo(long codeId) {
+		List<Memo> memos = memoRepository.findByUserIdAndCodeId(this.userId, codeId);
+		if (memos.isEmpty()) {
+			Integer addPoint = codeRepository.findById(codeId).get().getPoint();
+			Memo newMemo = new Memo();
+			newMemo.setUserId(userId);
+			newMemo.setCodeId(codeId);
+			newMemo.setAddPoint(addPoint);
+			memoRepository.save(newMemo);
+			return newMemo;
+		}
+		return memos.get(0);
 	}
 
 	public String getLangs(List<String> codeList) {
@@ -610,5 +709,7 @@ public class CLController {
 		List<String> langList = this.makeLangList(recentFive);
 		return langList;
 	}
+
+
 
 }
