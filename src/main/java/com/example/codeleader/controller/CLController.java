@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.codeleader.data.CodePath;
 import com.example.codeleader.data.CodeSet;
-import com.example.codeleader.data.Id;
 import com.example.codeleader.data.KeyWord;
 import com.example.codeleader.data.PostData;
 import com.example.codeleader.data.StringURL;
@@ -70,22 +71,11 @@ public class CLController {
 	@Autowired
 	GradeRepository gradeRepository;
 
-	long userId = 0;
+	String userId = "";
 	Optional<User> anUser;
 
 	@PostConstruct
 	public void init() {
-		// User
-		User user = new User();
-		user.setName("Yamada");
-		userRepository.save(user);
-		user = new User();
-		user.setName("Tanaka");
-		userRepository.save(user);
-		user = new User();
-		user.setName("Sato");
-		userRepository.save(user);
-
 		// ランクの閾値
 		Grade grade = new Grade();
 		grade.setId("A");
@@ -101,23 +91,25 @@ public class CLController {
 		anUser = userRepository.findById(this.userId);
 	}
 
-	@PostMapping("/home")
-	public String start(@ModelAttribute("userId") Id Id, Model model) {
-		this.userId = Id.getUserId();
-		if (!this.checkLogin(model))
-			return "login";
-		this.anUser = userRepository.findById(this.userId);
-		Iterable<User> list = userRepository.findAll();
-		model.addAttribute("list", list);
-		this.setPopularityCodePathsModel(model);
-		this.setHeaderModel(model);
-		return "home";
+	public void setUserId(OAuth2User principal) {
+		this.userId = principal.getAttribute("login");
+		System.out.println("OK:" + userId);
+		this.checkUser();
+		return;
+	}
+
+	public void checkUser() {
+		if (userRepository.findById(this.userId).isEmpty()) {
+			User user = new User();
+			user.setId(this.userId);
+			user.setName(this.userId);
+			userRepository.save(user);
+		}
 	}
 
 	@GetMapping("/home")
-	public String home(Model model) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String home(Model model, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		Iterable<User> list = userRepository.findAll();
 		model.addAttribute("list", list);
 		this.setRecommendCodePathsModel(model);
@@ -127,9 +119,8 @@ public class CLController {
 	}
 
 	@GetMapping("/code")
-	public String code(Model model) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String code(Model model, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		model.addAttribute("keyWord", new KeyWord());
 		this.setNewCodeSetsModel(model);
 		this.setHeaderModel(model);
@@ -137,7 +128,8 @@ public class CLController {
 	}
 
 	@PostMapping("/code")
-	public String search(@ModelAttribute("keyWord") KeyWord keyWord, Model model) {
+	public String search(@ModelAttribute("keyWord") KeyWord keyWord, Model model,
+			@AuthenticationPrincipal OAuth2User principal) {
 		this.setFindByPostModel(keyWord.getKey(), model);
 		this.setFindByCodeModel(keyWord.getKey(), model);
 		this.setHeaderModel(model);
@@ -145,9 +137,8 @@ public class CLController {
 	}
 
 	@GetMapping("/code/{postId}")
-	public String code(Model model, @PathVariable long postId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String code(Model model, @PathVariable(name = "postId") long postId, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		this.setCodeSetModel(model, postId);
 		this.setHeaderModel(model);
 		return "post_code";
@@ -155,9 +146,8 @@ public class CLController {
 
 	@GetMapping("/memo/{codeId}")
 	@Transactional(readOnly = false)
-	public String memo(Model model, @PathVariable long codeId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String memo(Model model, @PathVariable(name = "codeId") long codeId, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		this.setMemoModel(model, codeId);
 		this.setHeaderModel(model);
 		return "memo";
@@ -165,7 +155,8 @@ public class CLController {
 
 	@PostMapping("/memo/{codeId}")
 	@Transactional(readOnly = false)
-	public String saveMemo(Model model, @ModelAttribute("memo") Memo bcMemo, @PathVariable long codeId) {
+	public String saveMemo(Model model, @ModelAttribute("memo") Memo bcMemo, @PathVariable(name = "codeId") long codeId,
+			@AuthenticationPrincipal OAuth2User principal) {
 		Memo memo = memoRepository.findByUserIdAndCodeId(this.userId, codeId).get(0);
 		if (memo.getAddPoint() > 0) {
 			this.updateMPoint(memo.getId());
@@ -180,9 +171,8 @@ public class CLController {
 	}
 
 	@GetMapping("/mypage")
-	public String mypage(Model model) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String mypage(Model model, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		this.setHeaderModel(model);
 		this.setBookmarkCodePathsModel(model);
 		this.setAccessCodePathsModel(model);
@@ -191,9 +181,8 @@ public class CLController {
 	}
 
 	@GetMapping("/post")
-	public String post(Model model) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String post(Model model, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		model.addAttribute("postData", new PostData());
 		this.setHeaderModel(model);
 		return "post";
@@ -201,9 +190,9 @@ public class CLController {
 
 	@PostMapping("/post")
 	@Transactional(readOnly = false)
-	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String submitPost(@Validated @ModelAttribute PostData postData, BindingResult bindingResult, Model model,
+			@AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		if (bindingResult.hasErrors()) {
 			List<String> errorList = new ArrayList<String>();
 			for (ObjectError error : bindingResult.getAllErrors()) {
@@ -224,24 +213,10 @@ public class CLController {
 		return "check";
 	}
 
-	@GetMapping("/user")
-	public String user(Model model) {
-		if (!this.checkLogin(model))
-			return "login";
-		return "user";
-	}
-
-	@GetMapping("/login")
-	public String login(Model model) {
-		model.addAttribute("Id", new Id());
-		return "login";
-	}
-
 	@GetMapping("/edit/{codeId}")
 	@Transactional(readOnly = false)
-	public String edit(Model model, @PathVariable long codeId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String edit(Model model, @PathVariable(name = "codeId") long codeId, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		this.setHeaderModel(model);
 		this.access(codeId);
 		this.setEditModel(model, codeId);
@@ -259,9 +234,8 @@ public class CLController {
 
 	@PostMapping(value = "/edit/{codeId}", params = "bookmark")
 	@Transactional(readOnly = false)
-	public String bookmark(Model model, @PathVariable long codeId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String bookmark(Model model, @PathVariable(name = "codeId") long codeId, @AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		System.out.println("ok");
 		this.setHeaderModel(model);
 		this.setEditModel(model, codeId);
@@ -279,9 +253,9 @@ public class CLController {
 
 	@PostMapping(value = "/edit/{codeId}", params = "remove")
 	@Transactional(readOnly = false)
-	public String removeBookmark(Model model, @PathVariable long codeId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String removeBookmark(Model model, @PathVariable(name = "codeId") long codeId,
+			@AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		this.setHeaderModel(model);
 		this.setEditModel(model, codeId);
 		if (!bookmarkRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
@@ -297,9 +271,9 @@ public class CLController {
 
 	@PostMapping(value = "/edit/{codeId}", params = "finish")
 	@Transactional(readOnly = false)
-	public String finishedReading(Model model, @PathVariable long codeId) {
-		if (!this.checkLogin(model))
-			return "login";
+	public String finishedReading(Model model, @PathVariable(name = "codeId") long codeId,
+			@AuthenticationPrincipal OAuth2User principal) {
+		this.setUserId(principal);
 		if (finishedReadingRepository.findByUserIdAndCodeId(this.userId, codeId).isEmpty()) {
 			this.updatePoint(codeId);
 			this.updateExp(codeId);
@@ -312,14 +286,6 @@ public class CLController {
 			return "finished_bookmark";
 		}
 		return "finished";
-	}
-
-	public boolean checkLogin(Model model) {
-		if (this.userId != 0) {
-			return true;
-		}
-		model.addAttribute("Id", new Id());
-		return false;
 	}
 
 	public void setHeaderModel(Model model) {
@@ -709,7 +675,5 @@ public class CLController {
 		List<String> langList = this.makeLangList(recentFive);
 		return langList;
 	}
-
-
 
 }

@@ -9,6 +9,6 @@ import com.example.codeleader.entity.Access;
 
 @Repository
 public interface AccessRepository extends CrudRepository<Access, Long> {
-    public List<Access> findByUserIdAndCodeId(long userId, long codeId);
-    public List<Access> findByUserIdOrderByAccessedAtDesc(long userId);
+    public List<Access> findByUserIdAndCodeId(String userId, long codeId);
+    public List<Access> findByUserIdOrderByAccessedAtDesc(String userId);
 }

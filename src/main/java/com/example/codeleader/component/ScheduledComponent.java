@@ -19,9 +19,8 @@ public class ScheduledComponent {
     @Autowired
     GradeRepository gradeRepository;
 
-	@Scheduled(cron = "30 38 15 ? * THU", zone = "Asia/Tokyo")
+	@Scheduled(cron = "0 0 4 ? * THU", zone = "Asia/Tokyo")
     public void initData() {
-        System.out.println("動いてますよ");
         Iterable<User> userList = userRepository.findAll();
         Integer average = this.averageOfPoints(userList);
         this.initThreshold(average);

@@ -16,7 +16,7 @@ public class FinishedReading {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private long userId;
+    private String userId;
     private long codeId;
     private Timestamp finishedAt;
 

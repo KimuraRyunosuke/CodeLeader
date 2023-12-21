@@ -15,7 +15,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private long userId;
+    private String userId;
     private String title;
     private String comment;
     private String lang;

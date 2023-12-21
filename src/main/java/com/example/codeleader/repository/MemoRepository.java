@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface MemoRepository extends CrudRepository<Memo, Long> {
-    List<Memo> findByUserIdAndCodeId(long userId, long codeId);
+    List<Memo> findByUserIdAndCodeId(String userId, long codeId);
 }
