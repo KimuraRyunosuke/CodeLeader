@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.codeleader.CodeLeaderApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-12-28T05:19:11" hostname="yoshidadaisukenoMacBook-Pro.local" time="0.25">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.example.codeleader.CodeLeaderApplicationTests" time="0.25"/>
+  <system-out><![CDATA[14:19:09.615 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.codeleader.CodeLeaderApplicationTests]: CodeLeaderApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:19:09.651 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.codeleader.CodeLeaderApplication for test class com.example.codeleader.CodeLeaderApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2023-12-28T14:19:09.775+09:00  INFO 90006 --- [    Test worker] c.e.c.CodeLeaderApplicationTests         : Starting CodeLeaderApplicationTests using Java 17.0.5 with PID 90006 (started by daisuke in /Users/daisuke/Desktop/2023/CodeLeader)
+2023-12-28T14:19:09.776+09:00  INFO 90006 --- [    Test worker] c.e.c.CodeLeaderApplicationTests         : No active profile set, falling back to 1 default profile: "default"
+2023-12-28T14:19:10.008+09:00  INFO 90006 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-12-28T14:19:10.029+09:00  INFO 90006 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 8 JPA repository interfaces.
+2023-12-28T14:19:10.200+09:00  INFO 90006 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-12-28T14:19:10.216+09:00  INFO 90006 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
+2023-12-28T14:19:10.226+09:00  INFO 90006 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2023-12-28T14:19:10.302+09:00  INFO 90006 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2023-12-28T14:19:10.310+09:00  INFO 90006 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-12-28T14:19:10.429+09:00  INFO 90006 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@9f1ca74
+2023-12-28T14:19:10.429+09:00  INFO 90006 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-12-28T14:19:10.448+09:00  WARN 90006 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MySQL57Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2023-12-28T14:19:10.448+09:00  WARN 90006 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000026: MySQL57Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2023-12-28T14:19:10.775+09:00  INFO 90006 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2023-12-28T14:19:10.800+09:00  INFO 90006 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: select g1_0.id,g1_0.value from grade g1_0 where g1_0.id=?
+Hibernate: select g1_0.id,g1_0.value from grade g1_0 where g1_0.id=?
+Hibernate: select g1_0.id,g1_0.value from grade g1_0 where g1_0.id=?
+Hibernate: select u1_0.id,u1_0.exp,u1_0.grade,u1_0.lv,u1_0.name,u1_0.point from user u1_0 where u1_0.id=?
+2023-12-28T14:19:11.036+09:00  WARN 90006 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-12-28T14:19:11.043+09:00 TRACE 90006 --- [    Test worker] eGlobalAuthenticationAutowiredConfigurer : Eagerly initializing {securityConfig=com.example.codeleader.config.SecurityConfig$$SpringCGLIB$$0@81cd90e}
+2023-12-28T14:19:11.044+09:00 DEBUG 90006 --- [    Test worker] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2023-12-28T14:19:11.167+09:00  INFO 90006 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@59f56892, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@389fad5b, org.springframework.security.web.context.SecurityContextHolderFilter@4e797a39, org.springframework.security.web.header.HeaderWriterFilter@46c92d27, org.springframework.web.filter.CorsFilter@5d72da0b, org.springframework.security.web.csrf.CsrfFilter@6d18401b, org.springframework.security.web.authentication.logout.LogoutFilter@5a110e7d, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@571b4bf6, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@53a645a2, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@14f03f2, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@285b63eb, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4349389d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@147203c2, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5a983f8a, org.springframework.security.web.access.ExceptionTranslationFilter@2b0d6bf2, org.springframework.security.web.access.intercept.AuthorizationFilter@5edd2170]
+2023-12-28T14:19:11.282+09:00  INFO 90006 --- [    Test worker] c.e.c.CodeLeaderApplicationTests         : Started CodeLeaderApplicationTests in 1.583 seconds (process running for 1.959)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
