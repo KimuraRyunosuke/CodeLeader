@@ -1,17 +1,17 @@
 ```mermaid
 erDiagram
     user {
-        bigint id PK
-        String name
+        string id PK
+        string name
         int lv
         int exp
         int point
-        int grade
+        string grade
     }
 
     post {
         bigint id PK
-        bigint user_id FK "user"
+        string user_id FK "user"
         string title
         string comment
         string lang
@@ -22,6 +22,8 @@ erDiagram
         bigint id PK
         bigint post_id FK "code"
         string url
+        string file_name
+        string lang
         int loc
         int point
         int reader_count
@@ -29,34 +31,34 @@ erDiagram
 
     access {
         bigint id PK
-        bigint user_id FK "user"
+        string user_id FK "user"
         bigint code_id
         timestamp accessed_at
     }
 
     finished_reading {
         bigint id PK
-        bigint user_id FK "user"
+        string user_id FK "user"
         bigint code_id
         timestamp finished_at
     }
 
     bookmark {
         bigint id PK
-        bigint user_id FK "user"
+        string user_id FK "user"
         bigint code_id
     }
 
     memo {
         bigint id PK
-        bigint user_id FK "user"
+        string user_id FK "user"
         bigint code_id FK "user"
         string text
         int add_point
     }
 
     grade {
-        int id PK
+        string id PK
         int value
     }
 
