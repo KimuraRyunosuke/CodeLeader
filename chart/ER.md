@@ -47,10 +47,12 @@ erDiagram
         bigint code_id
     }
 
-    title {
+    memo {
         bigint id PK
         bigint user_id FK "user"
-        int title_list_id
+        bigint code_id FK "user"
+        string text
+        int add_point
     }
 
     grade {
@@ -58,15 +60,10 @@ erDiagram
         int value
     }
 
-    title_list {
-        int id PK
-        string title
-    }
-
     user ||--o{ post : ""
     user ||--o{ access : ""
     user ||--o{ finished_reading : ""
     user ||--o{ bookmark : ""
-    user ||--o{ title : ""
+    user ||--o{ memo : ""
     post ||--|{ code : ""
 ```
