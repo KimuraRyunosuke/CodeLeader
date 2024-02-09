@@ -2,8 +2,8 @@
 このプロジェクトではプログラミング初学者がコードリーディングを気軽に行えるようにするためのwebアプリケーションを作成する。
 
 ## 使い方
-Java17
-BuildTool: Gradle
+* Java17
+* BuildTool: Gradle
 
 ### 準備
 1. MySQLをダウンロードする。
