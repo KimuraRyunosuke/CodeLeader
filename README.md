@@ -13,10 +13,10 @@
 5. ```GRANT ALL PRIVILEGES ON demo.* TO 'demouser'@'localhost';```を実行する。
 6. exitする。
 
-### 実行3
+### 実行方法 1
 1. VScodeの拡張機能をSpring Boot関係一式を適用する。
 2. 実行ボタンを押して実行する。（Spring Boot Dashboardを参照）
 
-### 実行2
+### 実行方法 2
 1. ```gradle build```でビルドする。
 2. ```java -jar build/libs/CodeLeader-0.0.1-SNAPSHOT.jar```で実行する。
