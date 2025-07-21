@@ -1,0 +1,63 @@
+body {
+    width: 100%;
+    height: 100%;
+    background-color: #2d2b2b;
+}
+a {
+    text-decoration: none;
+}
+header a {
+    color:black;
+}
+#status {
+    text-align: left;
+}
+#name {
+    text-align: right;
+}
+footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    background-color: #2d2b2b;
+}
+#menu {
+    text-align: center;
+}
+#menu a {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    color: #0093e8;
+    padding-bottom: 5px;
+}
+#menu a:hover {
+    color: #31d0df;
+}
+#menu .current {
+    font-weight: bold;
+    color: #0580c7;
+}
+.code {
+    color: #fff;
+    font-family: monospace;
+    counter-reset: line-number;
+    line-height: 0.5cm;
+    overflow:auto;
+}
+  
+.code span {
+    display: block;
+}
+  
+.code span {
+    counter-increment: line-number;
+    display: list-item;
+    padding-left: 1rem;
+    margin-left: 3rem;
+}
+  
+.code span::marker {
+    content: counter(line-number);
+    color: #aaa;
+}
