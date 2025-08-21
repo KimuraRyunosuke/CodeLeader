@@ -4,10 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table; // ★追加
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "users") // ★追加：テーブル名を明示
 public class User {
     
     @Id

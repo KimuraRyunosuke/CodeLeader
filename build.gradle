@@ -25,8 +25,14 @@ dependencies {
 	
 	testCompileOnly 'org.projectlombok:lombok:1.18.30'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-	// MySQLの依存関係を追加
-    implementation 'mysql:mysql-connector-java:8.0.26'
+	// PostgreSQLドライバ追加
+	implementation 'org.postgresql:postgresql:42.6.0'
+	// MySQLの依存関係を追加(削除)
+    //implementation 'mysql:mysql-connector-java:8.0.26'
+	
+	// PostgreSQL用
+	implementation 'org.postgresql:postgresql:42.7.3'
+
 }
 
 tasks.named('test') {
