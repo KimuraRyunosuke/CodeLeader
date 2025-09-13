@@ -1,24 +1,23 @@
 package com.example.codeleader.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.codeleader.service.CodeService;
+import com.example.codeleader.model.NodeInfo;  // ← ここを model.NodeInfo に統一！
 
 @RestController
 @RequestMapping("/api/code")
 public class CodeController {
 
-    // Node情報を返すダミーAPI（まずは固定データでOK）
-    @GetMapping("/node/{id}")
-    public ResponseEntity<NodeInfo> getNodeInfo(@PathVariable String id) {
-        // ここではダミーとして固定レスポンスを返す
-        NodeInfo info = new NodeInfo();
-        info.setName("greet");
-        info.setType("method");
-        info.setStartLine(10);
-        info.setEndLine(15);
-        info.setSource("void greet(String name) {\n    System.out.println(\"Hello, \" + name);\n}");
-        info.setDiffStatus("modified");
+    @Autowired
+    private CodeService codeService;
 
-        return ResponseEntity.ok(info);
+    /**
+     * ノードIDからノード情報を取得
+     * 例: GET /api/code/node/Hello.java:MyClass.greet
+     */
+    @GetMapping("/node/{id}")
+    public NodeInfo getNodeInfo(@PathVariable String id) {
+        return codeService.getNodeInfoById(id);
     }
 }

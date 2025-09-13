@@ -1,4 +1,4 @@
-package com.example.codeleader.controller;
+package com.example.codeleader.model;
 
 public class NodeInfo {
     private String name;
