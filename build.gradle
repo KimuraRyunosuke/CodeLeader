@@ -44,6 +44,4 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-application {
-    mainClass = 'com.example.dbtest.DbTestApplication'
-}
+
