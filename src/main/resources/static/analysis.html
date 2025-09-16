@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CodeLeader Analysis Demo</title>
+    <link rel="stylesheet" href="/css/analysis.css">
+</head>
+<body>
+<div id="container">
+    <div id="left-pane">
+        <h3>ツリー（メソッド一覧）</h3>
+        <div id="tree"></div>
+    </div>
+    <div id="right-pane">
+        <h3>ソース（選択したメソッド）</h3>
+        <div id="details"></div>
+    </div>
+</div>
+
+<div id="controls">
+    <h4>テスト入力</h4>
+    <div>
+        <label>旧ソース</label><br/>
+        <textarea id="oldSource" rows="10" cols="80">// ここに旧バージョンの Java ソース</textarea>
+    </div>
+    <div>
+        <label>新ソース</label><br/>
+        <textarea id="newSource" rows="10" cols="80">// ここに新バージョンの Java ソース</textarea>
+    </div>
+    <button id="runBtn">解析・差分を実行</button>
+</div>
+
+<script src="/js/analysis.js"></script>
+</body>
+</html>

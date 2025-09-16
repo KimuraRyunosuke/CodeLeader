@@ -1,0 +1,10 @@
+#container { display:flex; gap:12px; padding:12px; }
+#left-pane { width: 35%; border-right:1px solid #ddd; padding-right:8px; }
+#right-pane { width: 60%; padding-left:8px; }
+.method-item { padding:6px; cursor:pointer; border-radius:4px; margin-bottom:4px; }
+.method-item.added { background:#e6ffed; }
+.method-item.removed { background:#ffecec; }
+.method-item.modified { background:#fff8e1; }
+.method-item.unchanged { background:#f5f5f5; }
+#details pre { white-space:pre-wrap; background:#fafafa; padding:8px; border-radius:4px; border:1px solid #eee; }
+#controls { margin:12px; border-top:1px solid #ddd; padding-top:12px; }
