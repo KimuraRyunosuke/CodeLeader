@@ -15,6 +15,9 @@
     padding: 10px;
 }
 
-.has-diff pre {
-    background-color: #ffecec;
+#node-source {
+    display: block;
+    padding: 10px;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
 }

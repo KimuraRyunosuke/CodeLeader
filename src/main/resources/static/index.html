@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>CodeLeader Day5</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- jsTree の CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jstree@3.3.15/dist/themes/default/style.min.css" />
 </head>
 <body>
 <div id="container">
     <div id="left-pane">
         <h3>ツリー</h3>
-        <ul id="tree">
-            <li class="tree-node" data-id="Hello.java">Hello.java</li>
-            <li class="tree-node" data-id="Utils.java">Utils.java</li>
-        </ul>
+        <div id="tree"></div>
     </div>
+
     <div id="right-pane">
-        <h3>ノード詳細</h3>
-        <pre id="node-source">選択したノードの情報がここに表示されます</pre>
+        <h3 id="node-title">ノード詳細</h3>
+        <pre id="node-source" class="code-block">選択したノードの情報がここに表示されます</pre>
     </div>
 </div>
 
-<script src="js/day5.js"></script>
+<!-- jQuery & jsTree -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jstree@3.3.15/dist/jstree.min.js"></script>
+
+<!-- 自作JS -->
+<script src="/js/Day5.js"></script>
 </body>
 </html>
