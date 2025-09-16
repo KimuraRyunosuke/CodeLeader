@@ -18,7 +18,7 @@ public class JavaParserUtil {
         // 全てのクラス/インターフェイスを走査
         cu.findAll(ClassOrInterfaceDeclaration.class).forEach(c -> {
             String className = c.getNameAsString();
-            NodeList<MethodDeclaration> methods = c.getMethods();
+            List<MethodDeclaration> methods = c.getMethods();
             for (MethodDeclaration m : methods) {
                 String methodName = m.getNameAsString();
                 String signature = m.getDeclarationAsString(false, false, false);
