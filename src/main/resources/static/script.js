@@ -22,7 +22,7 @@ $(function () {
 
     // ノード選択イベント
     $('#tree').on("select_node.jstree", function (e, data) {
-        const node = data.node.original;
+        const node = data.node;
         updateRightPane(node);
     });
 });
@@ -32,9 +32,9 @@ function updateRightPane(node) {
     document.getElementById("node-title").textContent = node.text;
     let sourceHtml = "";
 
-    if (node.source) {
+    if (node.original.source) {
         // 直接ソースを持つノード
-        sourceHtml = renderSource(node.source, node.diffStatus);
+        sourceHtml = renderSource(node.original.source, node.original.diffStatus);
     } else if (node.children && node.children.length > 0) {
         // 子ノードがある場合 → 子のソースをまとめる
         node.children.forEach(childId => {
