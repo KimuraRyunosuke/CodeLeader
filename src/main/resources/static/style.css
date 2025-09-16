@@ -1,7 +1,7 @@
 /* レイアウト */
 #main-container {
     display: flex;
-    height: 90vh; /* 画面ほぼ全体を使用 */
+    height: 90vh;
 }
 
 #left-pane {
@@ -36,4 +36,10 @@
 }
 .code-block .modified {
     background-color: #fff5b1; /* 黄 */
+}
+
+/* 子ノードタイトル */
+.child-title {
+    margin-top: 8px;
+    font-weight: bold;
 }
