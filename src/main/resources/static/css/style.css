@@ -1,23 +1,39 @@
-#container {
+/* レイアウト */
+#main-container {
     display: flex;
-    height: 90vh;
-    font-family: Arial, sans-serif;
+    height: 90vh; /* 画面ほぼ全体を使用 */
 }
 
 #left-pane {
-    width: 30%;
+    width: 35%;
     border-right: 1px solid #ccc;
+    overflow-y: auto;
     padding: 10px;
 }
 
 #right-pane {
-    width: 70%;
+    width: 65%;
     padding: 10px;
+    overflow-y: auto;
 }
 
-#node-source {
-    display: block;
-    padding: 10px;
-    border: 1px solid #ccc;
+/* コード表示 */
+.code-block {
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-family: monospace;
     white-space: pre-wrap;
+    line-height: 1.4em;
+}
+
+/* 差分強調 */
+.code-block .added {
+    background-color: #e6ffed; /* 緑 */
+}
+.code-block .removed {
+    background-color: #ffeef0; /* 赤 */
+}
+.code-block .modified {
+    background-color: #fff5b1; /* 黄 */
 }
