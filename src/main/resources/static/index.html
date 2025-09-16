@@ -2,10 +2,24 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader</title>
+    <title>CodeLeader Day5</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h1>CodeLeader is running!</h1>
-<p>トップページが表示されています。</p>
+<div id="container">
+    <div id="left-pane">
+        <h3>ツリー</h3>
+        <ul id="tree">
+            <li class="tree-node" data-id="Hello.java">Hello.java</li>
+            <li class="tree-node" data-id="Utils.java">Utils.java</li>
+        </ul>
+    </div>
+    <div id="right-pane">
+        <h3>ノード詳細</h3>
+        <pre id="node-source">選択したノードの情報がここに表示されます</pre>
+    </div>
+</div>
+
+<script src="js/day5.js"></script>
 </body>
 </html>
