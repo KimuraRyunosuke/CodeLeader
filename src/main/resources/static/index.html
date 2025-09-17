@@ -2,20 +2,27 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader - 差分解析統合版</title>
+    <title>CodeLeader 統合版</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="app">
-    <div id="file-tree"></div>
-    <div id="method-detail"></div>
+<div id="main-container">
+    <!-- 左ペイン：ファイルツリー -->
+    <div id="left-pane">
+        <h3>ファイルツリー</h3>
+        <ul id="file-tree"></ul>
+    </div>
 
-    <div id="diff-inputs">
+    <!-- 右ペイン：メソッド詳細・差分 -->
+    <div id="right-pane">
+        <h3>ノード詳細</h3>
+        <div id="method-detail"></div>
+
         <h3>旧ソース</h3>
-        <textarea id="old-source" rows="6">public class Hello { void greet() {} }</textarea>
+        <textarea id="old-source" rows="5">public class Hello { void greet() {} }</textarea>
 
         <h3>新ソース</h3>
-        <textarea id="new-source" rows="6">public class Hello { void greet(String name) {} }</textarea>
+        <textarea id="new-source" rows="5">public class Hello { void greet(String name) {} }</textarea>
 
         <button id="run-diff">解析・差分を実行</button>
     </div>
