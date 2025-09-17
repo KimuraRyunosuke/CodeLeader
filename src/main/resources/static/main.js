@@ -1,51 +1,50 @@
-const fileTreeEl = document.getElementById("file-tree");
-const nodeTitleEl = document.getElementById("node-title");
-const oldSourceEl = document.getElementById("old-source");
-const newSourceEl = document.getElementById("new-source");
-const runDiffBtn = document.getElementById("run-diff");
+// --- 変数 ---
+const fileTreeDiv = document.getElementById('file-tree');
+const oldSourcePre = document.getElementById('old-source');
+const newSourcePre = document.getElementById('new-source');
+const runDiffBtn = document.getElementById('run-diff');
 
-// サンプルソース（ここにユーザ入力でも可）
-let sampleOld = `public class Hello { void greet() {} }`;
-let sampleNew = `public class Hello { void greet(String name) {} }`;
-
-// ツリー表示
-function renderTree(diffJson) {
-    fileTreeEl.innerHTML = '';
-    diffJson.forEach(node => {
-        const div = document.createElement("div");
+// --- サンプルツリー用関数 ---
+function renderTree(diffData) {
+    fileTreeDiv.innerHTML = '';
+    diffData.forEach(node => {
+        const div = document.createElement('div');
         div.textContent = `${node.className}.${node.methodName} (${node.status})`;
-        div.className = node.status === "added" ? "diff-added" : node.status === "removed" ? "diff-removed" : "";
-        div.onclick = () => showNodeDetail(node);
-        fileTreeEl.appendChild(div);
+        div.style.color = node.status === 'removed' ? 'red' : node.status === 'added' ? 'green' : 'black';
+        div.onclick = () => showDetail(node);
+        fileTreeDiv.appendChild(div);
     });
 }
 
-// 詳細表示
-function showNodeDetail(node) {
-    nodeTitleEl.textContent = `${node.className}.${node.methodName}`;
-    oldSourceEl.textContent = node.oldSource || '';
-    newSourceEl.textContent = node.newSource || '';
+function showDetail(node) {
+    oldSourcePre.textContent = node.oldSource || '';
+    newSourcePre.textContent = node.newSource || '';
 }
 
-// 本番 URL 対応 fetch
-async function fetchDiff(oldSource, newSource) {
-    // URLは本番環境に合わせて変更済み
-    const baseUrl = window.location.origin; // サーバ上のURLを自動取得
-    const res = await fetch(`${baseUrl}/api/analysis/diff`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ oldSource, newSource })
-    });
-    return await res.json();
-}
-
-runDiffBtn.onclick = async () => {
+// --- 差分API呼び出し ---
+async function fetchAndRenderDiff(oldSrc, newSrc) {
     try {
-        const diff = await fetchDiff(sampleOld, sampleNew);
-        renderTree(diff);
-        if(diff.length > 0) showNodeDetail(diff[0]);
-    } catch(err) {
-        alert("差分取得に失敗しました");
-        console.error(err);
+        const res = await fetch('/api/analysis/diff', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
+        });
+        const data = await res.json();
+        renderTree(data);
+    } catch (err) {
+        console.error('差分取得に失敗:', err);
+        fileTreeDiv.textContent = '差分取得に失敗しました';
     }
+}
+
+// --- ボタンイベント ---
+runDiffBtn.onclick = () => {
+    const oldSrc = oldSourcePre.textContent;
+    const newSrc = newSourcePre.textContent;
+    fetchAndRenderDiff(oldSrc, newSrc);
 };
+
+// --- 初期サンプル ---
+oldSourcePre.textContent = 'public class Hello { void greet() {} }';
+newSourcePre.textContent = 'public class Hello { void greet(String name) {} }';
+fetchAndRenderDiff(oldSourcePre.textContent, newSourcePre.textContent);

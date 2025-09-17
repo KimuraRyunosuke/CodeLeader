@@ -4,29 +4,18 @@
     <meta charset="UTF-8">
     <title>CodeLeader Demo</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* UI 最低限調整 */
-        #container { display: flex; height: 90vh; }
-        #file-tree { width: 30%; border-right: 1px solid #ccc; overflow-y: auto; padding: 10px; }
-        #detail-pane { width: 70%; padding: 10px; overflow-y: auto; }
-        .diff-added { background-color: #d4ffd4; }
-        .diff-removed { background-color: #ffd4d4; }
-        pre { white-space: pre-wrap; word-wrap: break-word; }
-    </style>
 </head>
 <body>
-<h1>CodeLeader Demo</h1>
 <div id="container">
-    <div id="file-tree"></div>
+    <div id="file-tree-pane">
+        <h3>ファイルツリー</h3>
+        <div id="file-tree"></div>
+    </div>
     <div id="detail-pane">
-        <h3 id="node-title">ノード詳細</h3>
-        <div>
-            <strong>旧ソース</strong>
-            <pre id="old-source">// ここに旧バージョンの Java ソース</pre>
-        </div>
-        <div>
-            <strong>新ソース</strong>
-            <pre id="new-source">// ここに新バージョンの Java ソース</pre>
+        <h3>ノード詳細</h3>
+        <div id="method-detail">
+            <pre id="old-source">旧ソース</pre>
+            <pre id="new-source">新ソース</pre>
         </div>
         <button id="run-diff">解析・差分を実行</button>
     </div>
