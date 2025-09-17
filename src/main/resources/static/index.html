@@ -2,25 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader</title>
+    <title>CodeLeader Demo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="container">
-    <div id="left-pane">
-        <h3>ファイルツリー</h3>
-        <div id="file-tree"></div>
-    </div>
-    <div id="right-pane">
-        <h3>ノード詳細</h3>
-        <div id="method-detail"></div>
-        <h4>旧ソース</h4>
-        <pre id="old-source"></pre>
-        <h4>新ソース</h4>
-        <pre id="new-source"></pre>
-        <button id="run-diff">解析・差分を実行</button>
-    </div>
+<h1>CodeLeader</h1>
+<div id="file-tree"></div>
+<div id="method-detail">
+    <h3>ノード詳細</h3>
+    <div>旧ソース</div>
+    <pre id="old-source">// ここに旧バージョンの Java ソース</pre>
+    <div>新ソース</div>
+    <pre id="new-source">// ここに新バージョンの Java ソース</pre>
 </div>
+<button id="run-diff">解析・差分を実行</button>
+
 <script src="main.js"></script>
 </body>
 </html>
