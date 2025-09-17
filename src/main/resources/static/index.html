@@ -2,23 +2,55 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader Demo</title>
-    <link rel="stylesheet" href="style.css">
+    <title>CodeLeader Demo - 本番版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        #file-tree {
+            width: 25%;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        #right-pane {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        pre {
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+        .added { background-color: #d4ffd4; }
+        .removed { background-color: #ffd4d4; }
+        button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<div id="container">
-    <div id="file-tree-pane">
-        <h3>ファイルツリー</h3>
-        <div id="file-tree"></div>
-    </div>
-    <div id="detail-pane">
-        <h3>ノード詳細</h3>
-        <div id="method-detail">
-            <pre id="old-source">旧ソース</pre>
-            <pre id="new-source">新ソース</pre>
-        </div>
-        <button id="run-diff">解析・差分を実行</button>
-    </div>
+
+<div id="file-tree"></div>
+
+<div id="right-pane">
+    <h3>ノード詳細</h3>
+    <pre id="node-title">選択したノードがここに表示されます</pre>
+
+    <h4>旧ソース</h4>
+    <pre id="old-source" contenteditable="true">public class Hello { void greet() {} }</pre>
+
+    <h4>新ソース</h4>
+    <pre id="new-source" contenteditable="true">public class Hello { void greet(String name) {} }</pre>
+
+    <button id="run-diff">解析・差分を実行</button>
 </div>
 
 <script src="main.js"></script>

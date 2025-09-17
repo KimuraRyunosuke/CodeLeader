@@ -1,50 +1,77 @@
-// --- 変数 ---
-const fileTreeDiv = document.getElementById('file-tree');
-const oldSourcePre = document.getElementById('old-source');
-const newSourcePre = document.getElementById('new-source');
-const runDiffBtn = document.getElementById('run-diff');
+const fileTreeDiv = document.getElementById("file-tree");
+const nodeTitlePre = document.getElementById("node-title");
+const oldSourcePre = document.getElementById("old-source");
+const newSourcePre = document.getElementById("new-source");
+const runDiffBtn = document.getElementById("run-diff");
 
-// --- サンプルツリー用関数 ---
-function renderTree(diffData) {
-    fileTreeDiv.innerHTML = '';
-    diffData.forEach(node => {
-        const div = document.createElement('div');
-        div.textContent = `${node.className}.${node.methodName} (${node.status})`;
-        div.style.color = node.status === 'removed' ? 'red' : node.status === 'added' ? 'green' : 'black';
-        div.onclick = () => showDetail(node);
-        fileTreeDiv.appendChild(div);
+// サンプルファイルツリー
+const files = [
+    { name: "Hello.java", methods: [
+            { name: "greet", status: "removed" },
+            { name: "greet", status: "added" }
+        ]},
+    { name: "Utils.java", methods: [] }
+];
+
+// ツリー表示
+function renderTree() {
+    fileTreeDiv.innerHTML = "";
+    files.forEach(file => {
+        const fileDiv = document.createElement("div");
+        fileDiv.textContent = file.name;
+        fileDiv.style.fontWeight = "bold";
+        fileTreeDiv.appendChild(fileDiv);
+
+        file.methods.forEach(m => {
+            const methodDiv = document.createElement("div");
+            methodDiv.textContent = `${file.name}.${m.name} (${m.status})`;
+            methodDiv.className = m.status;
+            methodDiv.style.paddingLeft = "15px";
+            methodDiv.style.cursor = "pointer";
+            methodDiv.onclick = () => showNodeDetail(file.name, m);
+            fileTreeDiv.appendChild(methodDiv);
+        });
     });
 }
 
-function showDetail(node) {
-    oldSourcePre.textContent = node.oldSource || '';
-    newSourcePre.textContent = node.newSource || '';
+// 右ペイン表示
+function showNodeDetail(fileName, method) {
+    nodeTitlePre.textContent = `${fileName}.${method.name}`;
+    // 旧・新ソースは事前の内容を保持
 }
 
-// --- 差分API呼び出し ---
-async function fetchAndRenderDiff(oldSrc, newSrc) {
-    try {
-        const res = await fetch('/api/analysis/diff', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
-        });
-        const data = await res.json();
-        renderTree(data);
-    } catch (err) {
-        console.error('差分取得に失敗:', err);
-        fileTreeDiv.textContent = '差分取得に失敗しました';
-    }
+// 本番用 fetch 差分取得
+async function fetchDiff(oldSrc, newSrc) {
+    const res = await fetch("/api/analysis/diff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
+    });
+    if (!res.ok) throw new Error("差分取得失敗");
+    return res.json();
 }
 
-// --- ボタンイベント ---
-runDiffBtn.onclick = () => {
+// ボタン押下で差分反映
+runDiffBtn.onclick = async () => {
     const oldSrc = oldSourcePre.textContent;
     const newSrc = newSourcePre.textContent;
-    fetchAndRenderDiff(oldSrc, newSrc);
+
+    try {
+        const diff = await fetchDiff(oldSrc, newSrc);
+        if (!diff || diff.length === 0) {
+            alert("差分はありません");
+            return;
+        }
+        // 右ペインに差分を反映
+        diff.forEach(d => {
+            oldSourcePre.innerHTML = `<span class="removed">${d.oldSource}</span>`;
+            newSourcePre.innerHTML = `<span class="added">${d.newSource}</span>`;
+        });
+    } catch (e) {
+        console.error(e);
+        alert("差分取得に失敗しました");
+    }
 };
 
-// --- 初期サンプル ---
-oldSourcePre.textContent = 'public class Hello { void greet() {} }';
-newSourcePre.textContent = 'public class Hello { void greet(String name) {} }';
-fetchAndRenderDiff(oldSourcePre.textContent, newSourcePre.textContent);
+// 初期レンダリング
+renderTree();
