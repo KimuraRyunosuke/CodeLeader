@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CodeLeader - トップページ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+            text-align: center;
+        }
+        a.button {
+            display: inline-block;
+            margin: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+        a.button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>CodeLeader</h1>
+</header>
+
+<main>
+    <h2>ようこそ CodeLeader へ</h2>
+    <p>コード学習・投稿・閲覧を楽しみましょう。</p>
+
+    <!-- ログインページへのリンク -->
+    <a class="button" th:href="@{/login}">ログイン</a>
+
+    <!-- ホームページ（ログイン済み用）へのリンク -->
+    <a class="button" th:href="@{/home}">ホーム</a>
+</main>
+</body>
+</html>
