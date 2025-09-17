@@ -1,67 +1,84 @@
-// ツリーを描画
-function renderTree(treeData, parentElement) {
-    treeData.forEach(node => {
-        const li = document.createElement("li");
-        li.textContent = node.name;
-        li.style.cursor = "pointer";
+// main.js（既存のUIスクリプトに統合済み）
 
-        // 差分がある場合は色付け
-        if (node.hasDiff) {
-            li.style.backgroundColor = "#ffe0e0";
-        }
-
-        // クリックイベント
-        li.addEventListener("click", () => {
-            const sourceBlock = document.getElementById("node-source");
-            sourceBlock.textContent = node.source || "(ソース未登録)";
-        });
-
-        parentElement.appendChild(li);
-
-        if (node.children && node.children.length > 0) {
-            const ul = document.createElement("ul");
-            li.appendChild(ul);
-            renderTree(node.children, ul);
-        }
-    });
-}
-
-// APIからツリー取得
-async function loadTree() {
+/**
+ * 指定された旧ソース・新ソースをサーバに送り、差分を取得して描画する
+ * @param {string} oldSource
+ * @param {string} newSource
+ */
+async function fetchAndRenderDiff(oldSource, newSource) {
     try {
-        const res = await fetch("/api/analysis/tree");
-        const data = await res.json();
-        const fileTree = document.getElementById("file-tree");
-        fileTree.innerHTML = "";
-        renderTree(data, fileTree);
-    } catch (err) {
-        console.error("ツリー取得エラー:", err);
-    }
-}
-
-// 差分解析の実行
-async function runAnalysis() {
-    const oldSource = document.getElementById("old-source").value;
-    const newSource = document.getElementById("new-source").value;
-
-    try {
-        const res = await fetch("/api/analysis/diff", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/analysis/diff', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ oldSource, newSource })
         });
 
-        const diffs = await res.json();
-        console.log("差分解析結果:", diffs);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        // TODO: ツリーに差分を反映させる処理
-        await loadTree();
+        const diffData = await response.json();
+        renderTree(diffData);
     } catch (err) {
-        console.error("差分解析エラー:", err);
+        console.error('Error fetching diff:', err);
+        document.getElementById('file-tree').innerText = '差分取得に失敗しました';
     }
 }
 
-document.getElementById("analyze-btn").addEventListener("click", runAnalysis);
+/**
+ * 取得した差分データをツリー表示＆詳細表示に描画
+ * @param {Array} diffData
+ */
+function renderTree(diffData) {
+    const treeContainer = document.getElementById('file-tree');
+    const detailContainer = document.getElementById('method-detail');
 
-// 初期ロード
-loadTree();
+    treeContainer.innerHTML = '';
+    detailContainer.innerHTML = '';
+
+    // ファイルごとにまとめる
+    const filesMap = {};
+    diffData.forEach(method => {
+        if (!filesMap[method.className]) filesMap[method.className] = [];
+        filesMap[method.className].push(method);
+    });
+
+    Object.keys(filesMap).forEach(fileName => {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'file-node';
+        fileDiv.innerText = fileName;
+        treeContainer.appendChild(fileDiv);
+
+        const methods = filesMap[fileName];
+        const methodList = document.createElement('ul');
+        methodList.style.display = 'none';
+        methods.forEach(method => {
+            const li = document.createElement('li');
+            li.innerText = `${method.signature} (${method.status})`;
+            li.style.cursor = 'pointer';
+            li.addEventListener('click', () => {
+                detailContainer.innerHTML = `
+                    <h3>${method.className}#${method.methodName}</h3>
+                    <p>Signature: ${method.signature}</p>
+                    <p>Status: ${method.status}</p>
+                    <pre>Old Source:\n${method.oldSource || ''}</pre>
+                    <pre>New Source:\n${method.newSource || ''}</pre>
+                `;
+            });
+            methodList.appendChild(li);
+        });
+
+        fileDiv.appendChild(methodList);
+        fileDiv.addEventListener('click', () => {
+            methodList.style.display = methodList.style.display === 'none' ? 'block' : 'none';
+        });
+    });
+}
+
+// 初期表示サンプル（必要に応じて呼び出し元で差し替え）
+document.addEventListener('DOMContentLoaded', () => {
+    fetchAndRenderDiff(
+        'public class Hello { void greet() {} }',
+        'public class Hello { void greet(String name) {} }'
+    );
+});
