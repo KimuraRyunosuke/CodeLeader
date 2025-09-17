@@ -1,34 +1,51 @@
-const API_BASE = "/api/analysis";
+const fileTreeEl = document.getElementById("file-tree");
+const nodeTitleEl = document.getElementById("node-title");
+const oldSourceEl = document.getElementById("old-source");
+const newSourceEl = document.getElementById("new-source");
+const runDiffBtn = document.getElementById("run-diff");
 
+// サンプルソース（ここにユーザ入力でも可）
+let sampleOld = `public class Hello { void greet() {} }`;
+let sampleNew = `public class Hello { void greet(String name) {} }`;
+
+// ツリー表示
+function renderTree(diffJson) {
+    fileTreeEl.innerHTML = '';
+    diffJson.forEach(node => {
+        const div = document.createElement("div");
+        div.textContent = `${node.className}.${node.methodName} (${node.status})`;
+        div.className = node.status === "added" ? "diff-added" : node.status === "removed" ? "diff-removed" : "";
+        div.onclick = () => showNodeDetail(node);
+        fileTreeEl.appendChild(div);
+    });
+}
+
+// 詳細表示
+function showNodeDetail(node) {
+    nodeTitleEl.textContent = `${node.className}.${node.methodName}`;
+    oldSourceEl.textContent = node.oldSource || '';
+    newSourceEl.textContent = node.newSource || '';
+}
+
+// 本番 URL 対応 fetch
 async function fetchDiff(oldSource, newSource) {
-    const res = await fetch(`${API_BASE}/diff`, {
+    // URLは本番環境に合わせて変更済み
+    const baseUrl = window.location.origin; // サーバ上のURLを自動取得
+    const res = await fetch(`${baseUrl}/api/analysis/diff`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ oldSource, newSource })
     });
-    return res.json();
+    return await res.json();
 }
 
-function renderTree(diffData) {
-    const tree = document.getElementById("file-tree");
-    tree.innerHTML = "";
-    diffData.forEach(d => {
-        const item = document.createElement("div");
-        item.textContent = `${d.className}.${d.methodName} (${d.status})`;
-        item.style.color = d.status === "added" ? "green" : d.status === "removed" ? "red" : "black";
-        item.onclick = () => renderDetail(d);
-        tree.appendChild(item);
-    });
-}
-
-function renderDetail(node) {
-    document.getElementById("old-source").textContent = node.oldSource || "// empty";
-    document.getElementById("new-source").textContent = node.newSource || "// empty";
-}
-
-document.getElementById("run-diff").onclick = async () => {
-    const oldSource = document.getElementById("old-source").textContent;
-    const newSource = document.getElementById("new-source").textContent;
-    const diffData = await fetchDiff(oldSource, newSource);
-    renderTree(diffData);
+runDiffBtn.onclick = async () => {
+    try {
+        const diff = await fetchDiff(sampleOld, sampleNew);
+        renderTree(diff);
+        if(diff.length > 0) showNodeDetail(diff[0]);
+    } catch(err) {
+        alert("差分取得に失敗しました");
+        console.error(err);
+    }
 };
