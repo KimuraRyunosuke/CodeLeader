@@ -18,10 +18,10 @@ public class AnalysisController {
     private AnalysisService service;
 
     // 解析API
-    @PostMapping("/parse")
-    public ResponseEntity<List<MethodInfo>> parse(@RequestBody ParseRequest req) {
-        return ResponseEntity.ok(service.parse(req.getSource()));
-    }
+    //@PostMapping("/parse")
+    //public ResponseEntity<List<MethodInfo>> parse(@RequestBody ParseRequest req) {
+    //    return ResponseEntity.ok(service.parse(req.getSource()));
+    //}
 
     // 差分API
     @PostMapping("/diff")
