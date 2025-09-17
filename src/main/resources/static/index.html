@@ -2,32 +2,25 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader 統合版</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>CodeLeader</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="main-container">
-    <!-- 左ペイン：ファイルツリー -->
+<div id="container">
     <div id="left-pane">
         <h3>ファイルツリー</h3>
-        <ul id="file-tree"></ul>
+        <div id="file-tree"></div>
     </div>
-
-    <!-- 右ペイン：メソッド詳細・差分 -->
     <div id="right-pane">
         <h3>ノード詳細</h3>
         <div id="method-detail"></div>
-
-        <h3>旧ソース</h3>
-        <textarea id="old-source" rows="5">public class Hello { void greet() {} }</textarea>
-
-        <h3>新ソース</h3>
-        <textarea id="new-source" rows="5">public class Hello { void greet(String name) {} }</textarea>
-
+        <h4>旧ソース</h4>
+        <pre id="old-source"></pre>
+        <h4>新ソース</h4>
+        <pre id="new-source"></pre>
         <button id="run-diff">解析・差分を実行</button>
     </div>
 </div>
-
 <script src="main.js"></script>
 </body>
 </html>

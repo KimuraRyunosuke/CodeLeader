@@ -1,45 +1,32 @@
-/* レイアウト */
-#main-container {
+#container {
     display: flex;
     height: 90vh;
 }
 
 #left-pane {
-    width: 35%;
+    width: 30%;
     border-right: 1px solid #ccc;
     overflow-y: auto;
     padding: 10px;
 }
 
 #right-pane {
-    width: 65%;
+    width: 70%;
     padding: 10px;
     overflow-y: auto;
 }
 
-/* コード表示 */
-.code-block {
-    background: #f7f7f7;
-    border: 1px solid #ddd;
+.method-added {
+    background-color: #d4edda;
+}
+
+.method-removed {
+    background-color: #f8d7da;
+}
+
+pre {
+    background-color: #f0f0f0;
     padding: 8px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    line-height: 1.4em;
-}
-
-/* 差分強調 */
-.code-block .added {
-    background-color: #e6ffed; /* 緑 */
-}
-.code-block .removed {
-    background-color: #ffeef0; /* 赤 */
-}
-.code-block .modified {
-    background-color: #fff5b1; /* 黄 */
-}
-
-/* 子ノードタイトル */
-.child-title {
-    margin-top: 8px;
-    font-weight: bold;
+    border-radius: 4px;
+    overflow-x: auto;
 }
