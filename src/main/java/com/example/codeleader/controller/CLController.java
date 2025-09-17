@@ -162,13 +162,7 @@ public class CLController {
 	}
 
 	@GetMapping("/edit/{codeId}")
-
-    @GetMapping("/")
-    public String rootRedirect() {
-        return "redirect:/home";
-    }
-
-    @Transactional(readOnly = false)
+	@Transactional(readOnly = false)
 	public String edit(Model model, @PathVariable long codeId) {
 		if (!this.checkLogin(model))
 			return "login";
