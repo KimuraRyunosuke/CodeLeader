@@ -1,4 +1,4 @@
-// ダミーデータ（本来はサーバAPIから取得）
+// ダミーツリー（本来はサーバAPIから取得）
 const treeData = [
     {
         id: "1",
@@ -14,14 +14,13 @@ const treeData = [
     }
 ];
 
+// ツリー初期化
 $(function () {
-    // ツリー初期化
-    $('#tree').jstree({
+    $('#file-tree').jstree({
         core: { data: treeData }
     });
 
-    // ノード選択イベント
-    $('#tree').on("select_node.jstree", function (e, data) {
+    $('#file-tree').on("select_node.jstree", function (e, data) {
         const node = data.node;
         updateRightPane(node);
     });
@@ -33,12 +32,10 @@ function updateRightPane(node) {
     let sourceHtml = "";
 
     if (node.original.source) {
-        // 直接ソースを持つノード
         sourceHtml = renderSource(node.original.source, node.original.diffStatus);
     } else if (node.children && node.children.length > 0) {
-        // 子ノードがある場合 → 子のソースをまとめる
         node.children.forEach(childId => {
-            const child = $('#tree').jstree(true).get_node(childId).original;
+            const child = $('#file-tree').jstree(true).get_node(childId).original;
             if (child.source) {
                 sourceHtml += `<div class="child-title">▼ ${child.text}</div>`;
                 sourceHtml += renderSource(child.source, child.diffStatus);
@@ -47,7 +44,6 @@ function updateRightPane(node) {
     } else {
         sourceHtml = "<div>(ソース未登録)</div>";
     }
-
     document.getElementById("node-source").innerHTML = sourceHtml;
 }
 
@@ -59,8 +55,71 @@ function renderSource(source, diffStatus) {
         if (diffStatus === "added") lineClass = "added";
         if (diffStatus === "removed") lineClass = "removed";
         if (diffStatus === "modified") lineClass = "modified";
-
         html += `<div class="${lineClass}">${i + 1}: ${line}</div>`;
     });
     return html;
 }
+
+// =======================
+// ✅ Day1 + Day2 追加部分
+// =======================
+const codeInput = document.getElementById("codeInput");
+const parseBtn = document.getElementById("parseBtn");
+const diffBtn = document.getElementById("diffBtn");
+const status = document.getElementById("status");
+const result = document.getElementById("result");
+
+function showStatus(msg, isError = true) {
+    status.style.color = isError ? "red" : "green";
+    status.textContent = msg;
+}
+
+async function postData(url, data) {
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error("サーバエラー: " + response.status);
+        return await response.json();
+    } catch (err) {
+        showStatus("通信エラー: " + err.message);
+        throw err;
+    }
+}
+
+parseBtn.addEventListener("click", async () => {
+    const code = codeInput.value.trim();
+    if (!code) {
+        showStatus("入力が空です。コードを入力してください。");
+        return;
+    }
+    showStatus("解析中...", false);
+    try {
+        const res = await postData("/api/analysis/parse", { code });
+        result.textContent = JSON.stringify(res, null, 2);
+        showStatus("解析完了", false);
+        localStorage.setItem("lastCode", code);
+    } catch {}
+});
+
+diffBtn.addEventListener("click", async () => {
+    const code = codeInput.value.trim();
+    const oldCode = localStorage.getItem("lastCode") || "";
+    if (!code) {
+        showStatus("入力が空です。コードを入力してください。");
+        return;
+    }
+    if (!oldCode) {
+        showStatus("前回のコードがありません。先に構造解析をしてください。");
+        return;
+    }
+    showStatus("差分解析中...", false);
+    try {
+        const res = await postData("/api/analysis/diff", { oldCode, newCode: code });
+        result.textContent = JSON.stringify(res, null, 2);
+        showStatus("差分解析完了", false);
+        localStorage.setItem("lastCode", code);
+    } catch {}
+});

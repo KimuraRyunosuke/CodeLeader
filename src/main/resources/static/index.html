@@ -29,19 +29,24 @@
         }
         .added { background-color: #d4ffd4; }
         .removed { background-color: #ffd4d4; }
+        .modified { background-color: #fff5cc; }
         button {
-            margin-top: 10px;
-            padding: 5px 10px;
+            margin: 5px 5px 5px 0;
+            padding: 6px 12px;
             cursor: pointer;
         }
         textarea {
             width: 100%;
             font-family: monospace;
         }
-        .day1-section {
+        .analysis-section {
             margin-top: 20px;
             border-top: 1px solid #ccc;
             padding-top: 10px;
+        }
+        #status {
+            margin-left: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -52,37 +57,20 @@
 <div id="right-pane">
     <h3>ノード詳細</h3>
     <pre id="node-title">選択したノードがここに表示されます</pre>
+    <div id="node-source"></div>
 
-    <h4>旧ソース</h4>
-    <pre id="old-source" contenteditable="true">public class Hello { void greet() {} }</pre>
-
-    <h4>新ソース</h4>
-    <pre id="new-source" contenteditable="true">public class Hello { void greet(String name) {} }</pre>
-
-    <button id="run-diff">解析・差分を実行</button>
-
-    <!-- Day1 追加部分 -->
-    <div class="day1-section">
-        <h3>Day1 解析送信</h3>
-        <textarea id="day1-code-input" rows="6" placeholder="ここにソースコードを入力"></textarea>
-        <button id="day1-analyze-btn">解析を送信</button>
-        <span id="day1-status"></span>
+    <!-- ✅ Day1+Day2 解析セクション -->
+    <div class="analysis-section">
+        <h3>コード解析</h3>
+        <textarea id="codeInput" rows="8" placeholder="ここにソースコードを入力"></textarea><br>
+        <button id="parseBtn">構造解析</button>
+        <button id="diffBtn">差分解析</button>
+        <span id="status"></span>
         <h4>サーバー応答（JSON表示）</h4>
-        <pre id="day1-result">{結果がここに表示されます}</pre>
-    </div>
-
-    <!-- ✅ Day1 セクションの外に Day2 を追加 -->
-    <div class="day2-section">
-        <h3>Day2 差分解析</h3>
-        <textarea id="day2-old-code" rows="6" placeholder="古いソースコードを入力"></textarea>
-        <textarea id="day2-new-code" rows="6" placeholder="新しいソースコードを入力"></textarea>
-        <button id="day2-diff-btn">差分解析</button>
-        <span id="day2-status"></span>
-        <h4>サーバー応答（JSON表示）</h4>
-        <pre id="day2-result">{結果がここに表示されます}</pre>
+        <pre id="result">{結果がここに表示されます}</pre>
     </div>
 </div>
 
-<script src="main.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
