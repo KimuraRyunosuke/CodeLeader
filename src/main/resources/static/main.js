@@ -153,11 +153,12 @@ document.getElementById("day2-diff-btn").addEventListener("click", async () => {
     const newCode = document.getElementById("day2-new-code").value;
 
     try {
-        const res = await fetch("/analyze-diff", {
+        const res = await fetch("/api/analysis/diff", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ oldCode, newCode }),
+            body: JSON.stringify({ oldSource: oldCode, newSource: newCode })
         });
+
 
         const data = await res.json();
 
