@@ -4,6 +4,12 @@ const oldSourcePre = document.getElementById("old-source");
 const newSourcePre = document.getElementById("new-source");
 const runDiffBtn = document.getElementById("run-diff");
 
+// Day1 用要素
+const day1Btn = document.getElementById("day1-analyze-btn");
+const day1Input = document.getElementById("day1-code-input");
+const day1Status = document.getElementById("day1-status");
+const day1Result = document.getElementById("day1-result");
+
 // サンプルファイルツリー
 const files = [
     { name: "Hello.java", methods: [
@@ -70,6 +76,36 @@ runDiffBtn.onclick = async () => {
     } catch (e) {
         console.error(e);
         alert("差分取得に失敗しました");
+    }
+};
+
+// =========================
+// Day1 追加 fetch 送信
+// =========================
+day1Btn.onclick = async () => {
+    const code = day1Input.value.trim();
+    if (!code) { alert("コードを入力してください"); return; }
+
+    day1Btn.disabled = true;
+    day1Status.textContent = "送信中…";
+
+    try {
+        const res = await fetch("/api/analysis/parse", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        });
+        if (!res.ok) throw new Error("送信失敗");
+
+        const data = await res.json();
+        day1Result.textContent = JSON.stringify(data, null, 2);
+
+    } catch (e) {
+        console.error(e);
+        day1Result.textContent = "エラー：" + e.message;
+    } finally {
+        day1Btn.disabled = false;
+        day1Status.textContent = "";
     }
 };
 

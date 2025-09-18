@@ -34,6 +34,15 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        textarea {
+            width: 100%;
+            font-family: monospace;
+        }
+        .day1-section {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +60,16 @@
     <pre id="new-source" contenteditable="true">public class Hello { void greet(String name) {} }</pre>
 
     <button id="run-diff">解析・差分を実行</button>
+
+    <!-- Day1 追加部分 -->
+    <div class="day1-section">
+        <h3>Day1 解析送信</h3>
+        <textarea id="day1-code-input" rows="6" placeholder="ここにソースコードを入力"></textarea>
+        <button id="day1-analyze-btn">解析を送信</button>
+        <span id="day1-status"></span>
+        <h4>サーバー応答（JSON表示）</h4>
+        <pre id="day1-result">{結果がここに表示されます}</pre>
+    </div>
 </div>
 
 <script src="main.js"></script>
