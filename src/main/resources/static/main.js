@@ -90,7 +90,7 @@ day1Btn.onclick = async () => {
     day1Status.textContent = "送信中…";
 
     try {
-        const res = await fetch("/api/analysis/parse", {
+        const res = await fetch("/api/analysis/parsehttps://codeleader-production.up.railway.app/api/analysis/parse", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code })
