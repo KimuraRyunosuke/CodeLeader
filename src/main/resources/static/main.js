@@ -147,42 +147,34 @@ day1Btn.onclick = async () => {
     }
 };
 
-// ✅ Day2: 差分解析処理
-day2DiffBtn.onclick = async () => {
-    const oldCode = localStorage.getItem(LAST_CODE_KEY);
-    const newCode = day1Input.value.trim();
-
-    if (!oldCode) {
-        alert("まだ解析結果が保存されていません。まず『解析を送信』してください。");
-        return;
-    }
-    if (!newCode) {
-        alert("新しいコードを入力してください。");
-        return;
-    }
+// Day2 差分解析ボタン
+document.getElementById("day2-diff-btn").addEventListener("click", async () => {
+    const oldCode = document.getElementById("old-code-input").value;
+    const newCode = document.getElementById("new-code-input").value;
 
     try {
-        const res = await fetch("/api/analysis/diff", {
+        const res = await fetch("/analyze-diff", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ oldSource: oldCode, newSource: newCode })
+            body: JSON.stringify({ oldCode, newCode }),
         });
-        if (!res.ok) throw new Error("差分解析失敗");
 
-        const diffData = await res.json();
-        console.log("差分結果:", diffData);
+        const data = await res.json();
 
-        // ✅ JSON 表示（シンプル版）
-        day1Result.textContent = JSON.stringify(diffData, null, 2);
+        // Console 出力（デバッグ用）
+        console.log("差分結果:", data);
 
-        // 差分解析後 → localStorage 更新
-        localStorage.setItem(LAST_CODE_KEY, newCode);
+        // ★ Day2 サーバー応答（JSON表示）に反映
+        document.getElementById("diff-result").textContent =
+            JSON.stringify(data, null, 2);
 
-    } catch (e) {
-        console.error(e);
-        alert("差分解析に失敗しました: " + e.message);
+    } catch (err) {
+        console.error("差分解析エラー:", err);
+        document.getElementById("diff-result").textContent =
+            "エラーが発生しました: " + err;
     }
-};
+});
+
 
 
 // 初期レンダリング
