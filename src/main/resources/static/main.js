@@ -109,5 +109,81 @@ day1Btn.onclick = async () => {
     }
 };
 
+// =========================
+// Day2 差分解析用処理
+// =========================
+
+const day2DiffBtn = document.getElementById("day2-diff-btn");
+const LAST_CODE_KEY = "lastAnalyzedCode";
+
+// Day1 の解析成功時に localStorage に保存
+day1Btn.onclick = async () => {
+    const code = day1Input.value.trim();
+    if (!code) { alert("コードを入力してください"); return; }
+
+    day1Btn.disabled = true;
+    day1Status.textContent = "送信中…";
+
+    try {
+        const res = await fetch("/api/analysis/parse", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        });
+        if (!res.ok) throw new Error("送信失敗");
+
+        const data = await res.json();
+        day1Result.textContent = JSON.stringify(data, null, 2);
+
+        // ✅ 解析成功 → localStorage に保存
+        localStorage.setItem(LAST_CODE_KEY, code);
+
+    } catch (e) {
+        console.error(e);
+        day1Result.textContent = "エラー：" + e.message;
+    } finally {
+        day1Btn.disabled = false;
+        day1Status.textContent = "";
+    }
+};
+
+// ✅ Day2: 差分解析処理
+day2DiffBtn.onclick = async () => {
+    const oldCode = localStorage.getItem(LAST_CODE_KEY);
+    const newCode = day1Input.value.trim();
+
+    if (!oldCode) {
+        alert("まだ解析結果が保存されていません。まず『解析を送信』してください。");
+        return;
+    }
+    if (!newCode) {
+        alert("新しいコードを入力してください。");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/analysis/diff", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ oldSource: oldCode, newSource: newCode })
+        });
+        if (!res.ok) throw new Error("差分解析失敗");
+
+        const diffData = await res.json();
+        console.log("差分結果:", diffData);
+
+        // ✅ JSON 表示（シンプル版）
+        day1Result.textContent = JSON.stringify(diffData, null, 2);
+
+        // 差分解析後 → localStorage 更新
+        localStorage.setItem(LAST_CODE_KEY, newCode);
+
+    } catch (e) {
+        console.error(e);
+        alert("差分解析に失敗しました: " + e.message);
+    }
+};
+
+
 // 初期レンダリング
 renderTree();
