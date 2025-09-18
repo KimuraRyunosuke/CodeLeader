@@ -1,33 +1,25 @@
-package com.example.codeleader.controller;
+//package com.example.codeleader.controller;
 
-import com.example.codeleader.model.DiffRequest;
-import com.example.codeleader.model.MethodDiff;
-import com.example.codeleader.service.CodeService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+//import com.example.codeleader.service.DiffService;
+//import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+//import java.util.List;
+//import java.util.Map;
 
-@RestController
-@RequestMapping("/api/analysis")
-public class AnalysisController {
+//@RestController
+//@RequestMapping("/api/diff")
+//public class DiffController {
 
-    private final CodeService service;
+  //  private final DiffService diffService;
 
-    public AnalysisController(CodeService service) {
-        this.service = service;
-    }
+    //public DiffController(DiffService diffService) {
+    //    this.diffService = diffService;
+    //}
 
-    // ✅ Day1: 解析
-    @PostMapping("/parse")
-    public ResponseEntity<?> parse(@RequestBody Map<String, String> payload) {
-        String code = payload.getOrDefault("code", "");
-        return ResponseEntity.ok(service.parse(code));
-    }
-
-    // ✅ Day2: 差分解析
-    @PostMapping("/diff")
-    public ResponseEntity<List<MethodDiff>> diff(@RequestBody DiffRequest req) {
-        return ResponseEntity.ok(service.diff(req.getOldSource(), req.getNewSource()));
-    }
-}
+    //@PostMapping
+//    public List<Map<String, Object>> getDiff(@RequestBody Map<String, String> payload) {
+  //      String oldSource = payload.getOrDefault("oldSource", "");
+    //    String newSource = payload.getOrDefault("newSource", "");
+      //  return diffService.getDiff(oldSource, newSource);
+    //}
+//}
