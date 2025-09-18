@@ -149,8 +149,8 @@ day1Btn.onclick = async () => {
 
 // Day2 差分解析ボタン
 document.getElementById("day2-diff-btn").addEventListener("click", async () => {
-    const oldCode = document.getElementById("old-code-input").value;
-    const newCode = document.getElementById("new-code-input").value;
+    const oldCode = document.getElementById("day2-old-code").value;
+    const newCode = document.getElementById("day2-new-code").value;
 
     try {
         const res = await fetch("/analyze-diff", {
@@ -164,16 +164,17 @@ document.getElementById("day2-diff-btn").addEventListener("click", async () => {
         // Console 出力（デバッグ用）
         console.log("差分結果:", data);
 
-        // ★ Day2 サーバー応答（JSON表示）に反映
-        document.getElementById("diff-result").textContent =
+        // ✅ Day2 サーバー応答（JSON表示）に反映
+        document.getElementById("day2-result").textContent =
             JSON.stringify(data, null, 2);
 
     } catch (err) {
         console.error("差分解析エラー:", err);
-        document.getElementById("diff-result").textContent =
+        document.getElementById("day2-result").textContent =
             "エラーが発生しました: " + err;
     }
 });
+
 
 
 
