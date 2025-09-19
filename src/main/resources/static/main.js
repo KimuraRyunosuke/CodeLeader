@@ -66,8 +66,8 @@ function simpleLineDiff(oldCode, newCode) {
 
 // ────────── Day2 差分解析 ──────────
 day2Btn.onclick = async () => {
-    const oldCode = day2Old.value;
-    const newCode = day2New.value;
+    const oldCode = day2Old.value.trim();
+    const newCode = day2New.value.trim();
     if (!oldCode || !newCode) { alert("両方のコードを入力してください"); return; }
 
     day2Btn.disabled = true;
@@ -89,6 +89,7 @@ day2Btn.onclick = async () => {
         // サーバーが空配列ならフロントで簡易差分補完
         if (!data || data.length === 0) {
             data = simpleLineDiff(oldCode, newCode);
+            console.log("フロント補完差分:", data);
         }
 
         day2Result.textContent = JSON.stringify(data, null, 2);
