@@ -1,3 +1,4 @@
+// ────────── DOM要素 ──────────
 const fileTreeDiv = document.getElementById("file-tree");
 const nodeTitlePre = document.getElementById("node-title");
 const oldSourcePre = document.getElementById("old-source");
@@ -10,16 +11,24 @@ const day1Input = document.getElementById("day1-code-input");
 const day1Status = document.getElementById("day1-status");
 const day1Result = document.getElementById("day1-result");
 
-// サンプルファイルツリー
+// Day2 差分解析ボタン
+const day2DiffBtn = document.getElementById("day2-diff-btn");
+const LAST_CODE_KEY = "lastAnalyzedCode";
+
+// ────────── サンプルファイルツリー ──────────
 const files = [
-    { name: "Hello.java", methods: [
-            { name: "greet", status: "removed" },
-            { name: "greet", status: "added" }
-        ]},
-    { name: "Utils.java", methods: [] }
+    {
+        name: "Hello.java",
+        source: `public class Hello {\n    public void greet(String name) {\n        if (name != null) {\n            System.out.println("Hello, " + name);\n        }\n    }\n}`,
+        methods: [
+            { name: "greet", status: "removed", source: "void greet(String name) {\n    System.out.println(\"Hello, \" + name);\n}" },
+            { name: "greet", status: "added", source: "void greet(String name) {\n    System.out.println(\"Hello, \" + name);\n}" }
+        ]
+    },
+    { name: "Utils.java", methods: [], source: "" }
 ];
 
-// ツリー表示
+// ────────── ツリー表示 ──────────
 function renderTree() {
     fileTreeDiv.innerHTML = "";
     files.forEach(file => {
@@ -34,19 +43,39 @@ function renderTree() {
             methodDiv.className = m.status;
             methodDiv.style.paddingLeft = "15px";
             methodDiv.style.cursor = "pointer";
-            methodDiv.onclick = () => showNodeDetail(file.name, m);
+            methodDiv.onclick = () => showNodeDetail(file, m);
             fileTreeDiv.appendChild(methodDiv);
         });
     });
 }
 
-// 右ペイン表示
-function showNodeDetail(fileName, method) {
-    nodeTitlePre.textContent = `${fileName}.${method.name}`;
-    // 旧・新ソースは事前の内容を保持
+// ────────── 右ペイン表示（構造解析含む） ──────────
+async function showNodeDetail(file, method) {
+    const source = method.source || file.source || "";
+    nodeTitlePre.textContent = `${file.name}.${method.name}`;
+    oldSourcePre.textContent = source;
+    newSourcePre.textContent = source;
+
+    if (!source) return;
+
+    try {
+        const res = await fetch("/api/analysis/parse-structure", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: source })
+        });
+        if (!res.ok) throw new Error("構造解析失敗");
+
+        const json = await res.json();
+        day1Result.textContent = JSON.stringify(json, null, 2);
+
+    } catch (err) {
+        console.error(err);
+        day1Result.textContent = "構造解析エラー: " + err.message;
+    }
 }
 
-// 本番用 fetch 差分取得
+// ────────── 本番用 fetch 差分取得 ──────────
 async function fetchDiff(oldSrc, newSrc) {
     const res = await fetch("/api/analysis/diff", {
         method: "POST",
@@ -57,7 +86,7 @@ async function fetchDiff(oldSrc, newSrc) {
     return res.json();
 }
 
-// ボタン押下で差分反映
+// ────────── ボタン押下で差分反映 ──────────
 runDiffBtn.onclick = async () => {
     const oldSrc = oldSourcePre.textContent;
     const newSrc = newSourcePre.textContent;
@@ -68,7 +97,7 @@ runDiffBtn.onclick = async () => {
             alert("差分はありません");
             return;
         }
-        // 右ペインに差分を反映
+
         diff.forEach(d => {
             oldSourcePre.innerHTML = `<span class="removed">${d.oldSource}</span>`;
             newSourcePre.innerHTML = `<span class="added">${d.newSource}</span>`;
@@ -79,9 +108,7 @@ runDiffBtn.onclick = async () => {
     }
 };
 
-// =========================
-// Day1 追加 fetch 送信
-// =========================
+// ────────── Day1 解析ボタン ──────────
 day1Btn.onclick = async () => {
     const code = day1Input.value.trim();
     if (!code) { alert("コードを入力してください"); return; }
@@ -100,42 +127,7 @@ day1Btn.onclick = async () => {
         const data = await res.json();
         day1Result.textContent = JSON.stringify(data, null, 2);
 
-    } catch (e) {
-        console.error(e);
-        day1Result.textContent = "エラー：" + e.message;
-    } finally {
-        day1Btn.disabled = false;
-        day1Status.textContent = "";
-    }
-};
-
-// =========================
-// Day2 差分解析用処理
-// =========================
-
-const day2DiffBtn = document.getElementById("day2-diff-btn");
-const LAST_CODE_KEY = "lastAnalyzedCode";
-
-// Day1 の解析成功時に localStorage に保存
-day1Btn.onclick = async () => {
-    const code = day1Input.value.trim();
-    if (!code) { alert("コードを入力してください"); return; }
-
-    day1Btn.disabled = true;
-    day1Status.textContent = "送信中…";
-
-    try {
-        const res = await fetch("/api/analysis/parse", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code })
-        });
-        if (!res.ok) throw new Error("送信失敗");
-
-        const data = await res.json();
-        day1Result.textContent = JSON.stringify(data, null, 2);
-
-        // ✅ 解析成功 → localStorage に保存
+        // ✅ localStorage に保存
         localStorage.setItem(LAST_CODE_KEY, code);
 
     } catch (e) {
@@ -147,8 +139,8 @@ day1Btn.onclick = async () => {
     }
 };
 
-// Day2 差分解析ボタン
-document.getElementById("day2-diff-btn").addEventListener("click", async () => {
+// ────────── Day2 差分解析ボタン ──────────
+day2DiffBtn.addEventListener("click", async () => {
     const oldCode = document.getElementById("day2-old-code").value;
     const newCode = document.getElementById("day2-new-code").value;
 
@@ -158,17 +150,10 @@ document.getElementById("day2-diff-btn").addEventListener("click", async () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ oldSource: oldCode, newSource: newCode })
         });
-
-
         const data = await res.json();
-
-        // Console 出力（デバッグ用）
         console.log("差分結果:", data);
-
-        // ✅ Day2 サーバー応答（JSON表示）に反映
         document.getElementById("day2-result").textContent =
             JSON.stringify(data, null, 2);
-
     } catch (err) {
         console.error("差分解析エラー:", err);
         document.getElementById("day2-result").textContent =
@@ -176,8 +161,5 @@ document.getElementById("day2-diff-btn").addEventListener("click", async () => {
     }
 });
 
-
-
-
-// 初期レンダリング
+// ────────── 初期レンダリング ──────────
 renderTree();
