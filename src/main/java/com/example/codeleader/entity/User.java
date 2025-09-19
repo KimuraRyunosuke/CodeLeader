@@ -11,7 +11,7 @@ import lombok.Data;
 @Entity
 @Table(name = "users") // ★追加：テーブル名を明示
 public class User {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
