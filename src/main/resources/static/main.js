@@ -1,4 +1,5 @@
-window.onload = () => {// ────────── DOM要素 ──────────
+window.onload = () => {
+    // ────────── DOM要素 ──────────
 const fileTreeDiv = document.getElementById("file-tree");
 const nodeTitlePre = document.getElementById("node-title");
 const oldSourcePre = document.getElementById("old-source");
@@ -168,4 +169,5 @@ day2DiffBtn.addEventListener("click", async () => {
 
 // ────────── 初期レンダリング ──────────
 renderTree();
+
 };
