@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader Demo - 構造解析＋差分解析統合版</title>
+    <title>CodeLeader Demo - JSON版</title>
     <style>
         body {
             margin: 0;
@@ -11,8 +11,6 @@
             flex-direction: column;
             height: 100vh;
         }
-
-        /* 上部：コード入力 + ボタン */
         #input-container {
             padding: 10px;
             border-bottom: 1px solid #ccc;
@@ -26,8 +24,6 @@
             margin-left: 10px;
             font-weight: bold;
         }
-
-        /* 下部：右ペイン全画面表示 */
         #right-pane {
             flex: 1;
             padding: 10px;
@@ -40,20 +36,10 @@
             white-space: pre-wrap;
             font-family: monospace;
         }
-        .added { background-color: #d4ffd4; }
-        .removed { background-color: #ffd4d4; }
-        .modified { background-color: #fff5cc; }
     </style>
 </head>
 <body>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- jsTree -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
-
-<!-- 上部：Day1+Day2 入力 -->
 <div id="input-container">
     <h3>構造解析（Day1）</h3>
     <textarea id="code-input" rows="6" placeholder="Javaコードを入力"></textarea>
@@ -68,7 +54,6 @@
     <pre id="day2-result">差分結果がここに表示されます</pre>
 </div>
 
-<!-- 下部：右ペイン（構造解析結果）全画面表示 -->
 <div id="right-pane">
     <h3>右ペイン：構造解析 & 差分解析</h3>
     <pre id="result">ここに構造解析や差分結果が表示されます</pre>
@@ -97,13 +82,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code })
             });
-
             if (!res.ok) throw new Error("構造解析に失敗しました");
 
             const data = await res.json();
             day1Result.textContent = JSON.stringify(data, null, 2);
             resultPre.textContent = JSON.stringify(data, null, 2);
-
         } catch (err) {
             console.error(err);
             day1Result.textContent = "エラー: " + err.message;
@@ -135,13 +118,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
             });
-
             if (!res.ok) throw new Error("差分解析に失敗しました");
 
             const data = await res.json();
             day2Result.textContent = JSON.stringify(data, null, 2);
             resultPre.textContent = JSON.stringify(data, null, 2);
-
         } catch (err) {
             console.error(err);
             day2Result.textContent = "エラー: " + err.message;
@@ -151,7 +132,6 @@
         }
     };
 </script>
-<script src="script.js"></script>
 
 </body>
 </html>
