@@ -140,6 +140,9 @@ day1Btn.onclick = async () => {
 };
 
 // ────────── Day2 差分解析ボタン ──────────
+console.log("送信前旧コード:", oldCode);
+console.log("送信前新コード:", newCode);
+
 day2DiffBtn.addEventListener("click", async () => {
     const oldCode = document.getElementById("day2-old-code").value;
     const newCode = document.getElementById("day2-new-code").value;
