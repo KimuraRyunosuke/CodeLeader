@@ -165,6 +165,7 @@ day2DiffBtn.addEventListener("click", async () => {
             "エラーが発生しました: " + err;
     }
 });
-};
+
 // ────────── 初期レンダリング ──────────
 renderTree();
+};
