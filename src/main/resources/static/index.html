@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CodeLeader Demo - 構造解析全画面版</title>
+    <title>CodeLeader Demo - 構造解析＋差分解析統合版</title>
     <style>
         body {
             margin: 0;
@@ -17,17 +17,17 @@
             padding: 10px;
             border-bottom: 1px solid #ccc;
         }
-        #code-input {
+        textarea {
             width: 80%;
-            height: 80px;
             font-family: monospace;
+            margin-bottom: 5px;
         }
         #status {
             margin-left: 10px;
             font-weight: bold;
         }
 
-        /* 下部：右ペイン（構造解析結果）全画面表示 */
+        /* 下部：右ペイン全画面表示 */
         #right-pane {
             flex: 1;
             padding: 10px;
@@ -47,22 +47,32 @@
 </head>
 <body>
 
-<!-- 上部：コード入力 -->
+<!-- 上部：Day1+Day2 入力 -->
 <div id="input-container">
-    <textarea id="code-input" placeholder="Javaコードを入力"></textarea>
+    <h3>構造解析（Day1）</h3>
+    <textarea id="code-input" rows="6" placeholder="Javaコードを入力"></textarea>
     <button id="analyze-btn">構造解析</button>
     <span id="status"></span>
+    <pre id="day1-result">解析結果がここに表示されます</pre>
+
+    <h3>差分解析（Day2）</h3>
+    <textarea id="old-code" rows="4" placeholder="旧コード"></textarea>
+    <textarea id="new-code" rows="4" placeholder="新コード"></textarea>
+    <button id="diff-btn">差分解析</button>
+    <pre id="day2-result">差分結果がここに表示されます</pre>
 </div>
 
-<!-- 下部：右ペイン全画面表示 -->
+<!-- 下部：右ペイン（構造解析結果）全画面表示 -->
 <div id="right-pane">
-    <h3>構造解析結果</h3>
-    <pre id="result">ここに解析結果が表示されます</pre>
+    <h3>右ペイン：構造解析 & 差分解析</h3>
+    <pre id="result">ここに構造解析や差分結果が表示されます</pre>
 </div>
 
 <script>
+    // ===== Day1 構造解析 =====
     const codeInput = document.getElementById('code-input');
     const analyzeBtn = document.getElementById('analyze-btn');
+    const day1Result = document.getElementById('day1-result');
     const statusSpan = document.getElementById('status');
     const resultPre = document.getElementById('result');
 
@@ -72,6 +82,7 @@
 
         analyzeBtn.disabled = true;
         statusSpan.textContent = "解析中…";
+        day1Result.textContent = "";
         resultPre.textContent = "";
 
         try {
@@ -84,14 +95,53 @@
             if (!res.ok) throw new Error("構造解析に失敗しました");
 
             const data = await res.json();
+            day1Result.textContent = JSON.stringify(data, null, 2);
             resultPre.textContent = JSON.stringify(data, null, 2);
 
         } catch (err) {
             console.error(err);
+            day1Result.textContent = "エラー: " + err.message;
             resultPre.textContent = "エラー: " + err.message;
         } finally {
             analyzeBtn.disabled = false;
             statusSpan.textContent = "";
+        }
+    };
+
+    // ===== Day2 差分解析 =====
+    const oldCode = document.getElementById('old-code');
+    const newCode = document.getElementById('new-code');
+    const diffBtn = document.getElementById('diff-btn');
+    const day2Result = document.getElementById('day2-result');
+
+    diffBtn.onclick = async () => {
+        const oldSrc = oldCode.value.trim();
+        const newSrc = newCode.value.trim();
+        if (!oldSrc || !newSrc) { alert("両方のコードを入力してください"); return; }
+
+        diffBtn.disabled = true;
+        day2Result.textContent = "差分解析中…";
+        resultPre.textContent = "";
+
+        try {
+            const res = await fetch('/api/analysis/diff', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
+            });
+
+            if (!res.ok) throw new Error("差分解析に失敗しました");
+
+            const data = await res.json();
+            day2Result.textContent = JSON.stringify(data, null, 2);
+            resultPre.textContent = JSON.stringify(data, null, 2);
+
+        } catch (err) {
+            console.error(err);
+            day2Result.textContent = "エラー: " + err.message;
+            resultPre.textContent = "エラー: " + err.message;
+        } finally {
+            diffBtn.disabled = false;
         }
     };
 </script>
