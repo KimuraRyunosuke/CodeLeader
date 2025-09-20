@@ -1,137 +1,356 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>CodeLeader Demo - JSON版</title>
+    <meta charset="utf-8" />
+    <title>CodeLeader — 構造解析＆差分解析（JSON表示版）</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <style>
-        body {
-            margin: 0;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+        :root{
+            --bg:#f4f6f8;
+            --panel:#ffffff;
+            --muted:#6b7280;
+            --accent:#2563eb;
+            --added-bg:#e6ffed;
+            --removed-bg:#ffecec;
+            --modified-bg:#fff7e6;
+            --card-shadow: 0 6px 18px rgba(15,23,42,0.08);
+            --radius:10px;
         }
-        #input-container {
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
+        html,body{height:100%; margin:0; font-family: Inter, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background:var(--bg); color:#111827;}
+        .container{max-width:1200px; margin:24px auto; padding:20px; box-sizing:border-box;}
+        header{display:flex;align-items:center;gap:16px;margin-bottom:18px;}
+        header h1{font-size:20px;margin:0;}
+        header p{margin:0;color:var(--muted);font-size:13px;}
+
+        .grid{display:grid;grid-template-columns:1fr;gap:16px;}
+        /* larger screens: input column + results column */
+        @media(min-width:1000px){
+            .grid{grid-template-columns: 520px 1fr;}
         }
-        textarea {
-            width: 80%;
-            font-family: monospace;
-            margin-bottom: 5px;
+
+        .card{
+            background:var(--panel);
+            padding:14px;
+            border-radius:var(--radius);
+            box-shadow:var(--card-shadow);
         }
-        #status {
-            margin-left: 10px;
-            font-weight: bold;
+
+        label{display:block;font-weight:600;margin-bottom:8px;}
+        textarea{
+            width:100%;
+            min-height:320px; /* larger input area */
+            max-height:60vh;
+            resize:vertical;
+            padding:12px;
+            box-sizing:border-box;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Sans Mono", monospace;
+            font-size:13px;
+            border-radius:8px;
+            border:1px solid #e6e9ee;
+            background:#fcfdff;
+            color:#0f172a;
         }
-        #right-pane {
-            flex: 1;
-            padding: 10px;
-            overflow: auto;
-            background: #f9f9f9;
+
+        .controls{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+        button{
+            background:var(--accent);
+            color:white;
+            border:none;
+            padding:8px 12px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
+            box-shadow:0 4px 10px rgba(37,99,235,0.12);
         }
-        pre {
-            background: #f5f5f5;
-            padding: 10px;
-            white-space: pre-wrap;
-            font-family: monospace;
+        button[disabled]{opacity:0.5; cursor:not-allowed; box-shadow:none;}
+        .secondary{background:#e5e7eb;color:#111827;box-shadow:none;font-weight:600;}
+        .muted{color:var(--muted);font-size:13px}
+
+        /* result areas */
+        pre.result-box{
+            background:#0b1220; color:#e6eef8;
+            padding:12px; border-radius:8px; overflow:auto; white-space:pre-wrap; font-family: ui-monospace, monospace; font-size:13px;
+            max-height:70vh;
         }
+        .result-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+        @media(min-width:900px){ .result-grid{grid-template-columns:repeat(2,1fr);} }
+
+        .diff-entry{border-radius:8px;padding:10px;border:1px solid #e6edf6;background:#fff;}
+        .diff-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+        .tag{padding:4px 8px;border-radius:6px;font-weight:700;font-size:12px}
+        .tag.modified{background:var(--modified-bg);color:#a16207;border:1px solid #ffecb6;}
+        .tag.added{background:var(--added-bg);color:#065f46;border:1px solid #b6f0c6;}
+        .tag.removed{background:var(--removed-bg);color:#7f1d1d;border:1px solid #ffcfce;}
+
+        .diff-lines{display:flex;gap:8px;flex-wrap:wrap;}
+        .diff-block{flex:1;min-width:220px;border-radius:6px;padding:8px;background:#fafafa;border:1px solid #eef2f7; font-family:ui-monospace,monospace; font-size:13px; white-space:pre-wrap;}
+        .diff-block.added{background:var(--added-bg);}
+        .diff-block.removed{background:var(--removed-bg);}
+        .diff-block.modified{background:var(--modified-bg);}
+
+        .note{font-size:13px;color:var(--muted);margin-top:8px;}
+        footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
     </style>
 </head>
 <body>
+<div class="container">
+    <header>
+        <div>
+            <h1>CodeLeader — 構造解析 & 差分解析（JSON表示）</h1>
+            <p>Day1 / Day2 の最小実用 UI。構造解析は JSON を表示、差分は配列すべてを色分けして表示します。</p>
+        </div>
+    </header>
 
-<div id="input-container">
-    <h3>構造解析（Day1）</h3>
-    <textarea id="code-input" rows="6" placeholder="Javaコードを入力"></textarea>
-    <button id="analyze-btn">構造解析</button>
-    <span id="status"></span>
-    <pre id="day1-result">解析結果がここに表示されます</pre>
+    <div class="grid">
+        <!-- 左：入力 -->
+        <div class="card">
+            <label for="code-input">構造解析（Day1） — Javaコードを入力</label>
+            <textarea id="code-input" placeholder="ここに Java のソース全文を貼り付けてください..."></textarea>
+            <div class="controls">
+                <button id="analyze-btn">構造解析（送信）</button>
+                <button id="save-snapshot" class="secondary">スナップショット保存</button>
+                <span id="status" class="muted"></span>
+            </div>
 
-    <h3>差分解析（Day2）</h3>
-    <textarea id="day2-old-code" rows="4" placeholder="旧コード"></textarea>
-    <textarea id="day2-new-code" rows="4" placeholder="新コード"></textarea>
-    <button id="day2-diff-btn">差分解析</button>
-    <pre id="day2-result">差分結果がここに表示されます</pre>
-</div>
+            <hr style="margin:12px 0;border:none;border-top:1px solid #eef2f7;" />
 
-<div id="right-pane">
-    <h3>右ペイン：構造解析 & 差分解析</h3>
-    <pre id="result">ここに構造解析や差分結果が表示されます</pre>
+            <label for="day2-old-code">差分解析（Day2） — 旧コード</label>
+            <textarea id="day2-old-code" placeholder="以前のコード（旧）をここに"></textarea>
+
+            <label for="day2-new-code" style="margin-top:8px;">新コード</label>
+            <textarea id="day2-new-code" placeholder="新しいコード（新）をここに"></textarea>
+
+            <div class="controls" style="margin-top:8px;">
+                <button id="day2-diff-btn">差分解析（送信）</button>
+                <button id="clear-btn" class="secondary">入力クリア</button>
+                <span class="note">差分は行単位で検出され、すべての差分エントリを順に表示します。</span>
+            </div>
+        </div>
+
+        <!-- 右：結果 -->
+        <div class="card">
+            <label>構造解析 結果（JSON）</label>
+            <pre id="day1-result" class="result-box">構造解析の結果がここに表示されます</pre>
+
+            <label style="margin-top:12px">差分解析 結果（全エントリ）</label>
+            <div id="diff-results" style="margin-top:8px;"></div>
+
+            <label style="margin-top:12px">差分（生 JSON）</label>
+            <pre id="day2-result" class="result-box">差分の raw JSON がここに表示されます</pre>
+        </div>
+    </div>
+
+    <footer>© CodeLeader demo</footer>
 </div>
 
 <script>
-    // ===== Day1 構造解析 =====
-    const codeInput = document.getElementById('code-input');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const day1Result = document.getElementById('day1-result');
-    const statusSpan = document.getElementById('status');
-    const resultPre = document.getElementById('result');
+    (() => {
+        // UI 要素取得（DOMContentLoaded を使わず、IIFE + script 下部配置でOK）
+        const codeInput = document.getElementById('code-input');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const saveSnapshotBtn = document.getElementById('save-snapshot');
+        const statusSpan = document.getElementById('status');
 
-    analyzeBtn.onclick = async () => {
-        const code = codeInput.value.trim();
-        if (!code) { alert("コードを入力してください"); return; }
+        const oldCodeEl = document.getElementById('day2-old-code');
+        const newCodeEl = document.getElementById('day2-new-code');
+        const diffBtn = document.getElementById('day2-diff-btn');
+        const clearBtn = document.getElementById('clear-btn');
 
-        analyzeBtn.disabled = true;
-        statusSpan.textContent = "解析中…";
-        day1Result.textContent = "";
-        resultPre.textContent = "";
+        const day1ResultPre = document.getElementById('day1-result');
+        const day2ResultPre = document.getElementById('day2-result');
+        const diffResultsDiv = document.getElementById('diff-results');
 
-        try {
-            const res = await fetch('/api/analysis/parse-structure', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
-            });
-            if (!res.ok) throw new Error("構造解析に失敗しました");
-
-            const data = await res.json();
-            day1Result.textContent = JSON.stringify(data, null, 2);
-            resultPre.textContent = JSON.stringify(data, null, 2);
-        } catch (err) {
-            console.error(err);
-            day1Result.textContent = "エラー: " + err.message;
-            resultPre.textContent = "エラー: " + err.message;
-        } finally {
-            analyzeBtn.disabled = false;
-            statusSpan.textContent = "";
+        // helpers
+        function setStatus(msg, isError = false) {
+            statusSpan.textContent = msg || '';
+            statusSpan.style.color = isError ? '#b91c1c' : '#065f46';
         }
-    };
 
-    // ===== Day2 差分解析 =====
-    const oldCode = document.getElementById('day2-old-code');
-    const newCode = document.getElementById('day2-new-code');
-    const diffBtn = document.getElementById('day2-diff-btn');
-    const day2Result = document.getElementById('day2-result');
-
-    diffBtn.onclick = async () => {
-        const oldSrc = oldCode.value.trim();
-        const newSrc = newCode.value.trim();
-        if (!oldSrc || !newSrc) { alert("両方のコードを入力してください"); return; }
-
-        diffBtn.disabled = true;
-        day2Result.textContent = "差分解析中…";
-        resultPre.textContent = "";
-
-        try {
-            const res = await fetch('/api/analysis/diff', {
+        async function postJson(url, body) {
+            const res = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ oldSource: oldSrc, newSource: newSrc })
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(body)
             });
-            if (!res.ok) throw new Error("差分解析に失敗しました");
-
-            const data = await res.json();
-            day2Result.textContent = JSON.stringify(data, null, 2);
-            resultPre.textContent = JSON.stringify(data, null, 2);
-        } catch (err) {
-            console.error(err);
-            day2Result.textContent = "エラー: " + err.message;
-            resultPre.textContent = "エラー: " + err.message;
-        } finally {
-            diffBtn.disabled = false;
+            if (!res.ok) {
+                const txt = await res.text().catch(()=>res.statusText);
+                throw new Error(`HTTP ${res.status}: ${txt}`);
+            }
+            return res.json();
         }
-    };
+
+        // ===== Day1: 構造解析送信 =====
+        analyzeBtn.addEventListener('click', async () => {
+            const code = codeInput.value;
+            if (!code || !code.trim()) {
+                alert('コードを入力してください。');
+                return;
+            }
+            analyzeBtn.disabled = true;
+            setStatus('構造解析を送信中…', false);
+            day1ResultPre.textContent = '';
+            try {
+                const data = await postJson('/api/analysis/parse-structure', { code });
+                // 表示は JSON テキスト
+                day1ResultPre.textContent = JSON.stringify(data, null, 2);
+                setStatus('構造解析完了', false);
+                // スナップショット自動保存（簡易）
+                localStorage.setItem('lastParsedCode', code);
+            } catch (err) {
+                console.error(err);
+                day1ResultPre.textContent = 'エラー: ' + err.message;
+                setStatus('構造解析エラー', true);
+            } finally {
+                analyzeBtn.disabled = false;
+                setTimeout(()=>setStatus(''), 2200);
+            }
+        });
+
+        // スナップショット保存（手動）
+        saveSnapshotBtn.addEventListener('click', () => {
+            const code = codeInput.value || '';
+            if (!code.trim()) { alert('保存するコードが空です'); return; }
+            localStorage.setItem('lastParsedCode', code);
+            setStatus('スナップショットを保存しました', false);
+            setTimeout(()=>setStatus(''), 1600);
+        });
+
+        // ===== Day2: 差分解析送信 =====
+        diffBtn.addEventListener('click', async () => {
+            const oldSrc = oldCodeEl.value;
+            const newSrc = newCodeEl.value;
+            if (!oldSrc || !oldSrc.trim() || !newSrc || !newSrc.trim()) {
+                alert('旧コードと新コードの両方を入力してください');
+                return;
+            }
+
+            diffBtn.disabled = true;
+            setStatus('差分解析を送信中…', false);
+            day2ResultPre.textContent = '';
+            diffResultsDiv.innerHTML = '';
+
+            try {
+                // ここはバックエンド側の DiffController が /api/diff で動いている想定
+                const resp = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
+                // resp は配列（patchの各deltaに対応）
+                day2ResultPre.textContent = JSON.stringify(resp, null, 2);
+
+                // 見やすくレンダリング
+                if (!Array.isArray(resp) || resp.length === 0) {
+                    diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag added">差分なし</div></div><div class="note">旧コードと新コードに差分は見つかりませんでした。</div></div>`;
+                } else {
+                    const frag = document.createDocumentFragment();
+                    resp.forEach((entry, idx) => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'diff-entry';
+                        // meta
+                        const meta = document.createElement('div');
+                        meta.className = 'diff-meta';
+
+                        const type = (entry.type || '').toLowerCase();
+                        const tag = document.createElement('span');
+                        tag.className = `tag ${type === 'change' ? 'modified' : type === 'insert' || type === 'add' ? 'added' : type === 'delete' || type === 'remove' ? 'removed' : 'modified'}`;
+
+                        // normalize type label
+                        let typeLabel = entry.type || '';
+                        // java-diff-utils types: CHANGE, INSERT, DELETE
+                        if (type === 'change' || type === 'modify' || type === 'modified') typeLabel = 'modified';
+                        else if (type === 'insert' || type === 'add') typeLabel = 'added';
+                        else if (type === 'delete' || type === 'remove') typeLabel = 'removed';
+
+                        tag.textContent = typeLabel.toUpperCase();
+                        meta.appendChild(tag);
+
+                        const info = document.createElement('div');
+                        info.style.marginLeft = '8px';
+                        info.style.color = '#374151';
+                        info.style.fontSize = '13px';
+                        info.textContent = `エントリ ${idx + 1} — srcPos: ${entry.srcPos ?? '-'} tgtPos: ${entry.tgtPos ?? '-'}`;
+                        meta.appendChild(info);
+
+                        wrapper.appendChild(meta);
+
+                        // lines area
+                        const linesWrap = document.createElement('div');
+                        linesWrap.className = 'diff-lines';
+
+                        // Source (旧)
+                        const srcBlock = document.createElement('div');
+                        srcBlock.className = 'diff-block removed';
+                        const srcTitle = document.createElement('div');
+                        srcTitle.style.fontWeight = '700';
+                        srcTitle.style.marginBottom = '6px';
+                        srcTitle.textContent = '旧 (source)';
+                        srcBlock.appendChild(srcTitle);
+                        const srcLines = document.createElement('div');
+                        srcLines.style.whiteSpace = 'pre-wrap';
+                        srcLines.style.fontFamily = 'ui-monospace,monospace';
+                        srcLines.style.fontSize = '13px';
+                        // entry.source can be array or string
+                        if (entry.source) {
+                            if (Array.isArray(entry.source)) srcLines.textContent = entry.source.join('\n');
+                            else srcLines.textContent = String(entry.source);
+                        } else srcLines.textContent = '(なし)';
+                        srcBlock.appendChild(srcLines);
+                        linesWrap.appendChild(srcBlock);
+
+                        // Target (新)
+                        const tgtBlock = document.createElement('div');
+                        tgtBlock.className = 'diff-block added';
+                        const tgtTitle = document.createElement('div');
+                        tgtTitle.style.fontWeight = '700';
+                        tgtTitle.style.marginBottom = '6px';
+                        tgtTitle.textContent = '新 (target)';
+                        tgtBlock.appendChild(tgtTitle);
+                        const tgtLines = document.createElement('div');
+                        tgtLines.style.whiteSpace = 'pre-wrap';
+                        tgtLines.style.fontFamily = 'ui-monospace,monospace';
+                        tgtLines.style.fontSize = '13px';
+                        if (entry.target) {
+                            if (Array.isArray(entry.target)) tgtLines.textContent = entry.target.join('\n');
+                            else tgtLines.textContent = String(entry.target);
+                        } else tgtLines.textContent = '(なし)';
+                        tgtBlock.appendChild(tgtLines);
+                        linesWrap.appendChild(tgtBlock);
+
+                        wrapper.appendChild(linesWrap);
+                        frag.appendChild(wrapper);
+                    });
+                    diffResultsDiv.appendChild(frag);
+                }
+
+                setStatus('差分解析完了', false);
+            } catch (err) {
+                console.error(err);
+                day2ResultPre.textContent = 'エラー: ' + err.message;
+                diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag removed">ERROR</div></div><div class="note">${err.message}</div></div>`;
+                setStatus('差分解析エラー', true);
+            } finally {
+                diffBtn.disabled = false;
+                setTimeout(()=>setStatus(''), 2200);
+            }
+        });
+
+        // clear inputs
+        clearBtn.addEventListener('click', () => {
+            if (confirm('入力欄をクリアしますか？')) {
+                codeInput.value = '';
+                oldCodeEl.value = '';
+                newCodeEl.value = '';
+                day1ResultPre.textContent = '解析結果がここに表示されます';
+                day2ResultPre.textContent = '差分の raw JSON がここに表示されます';
+                diffResultsDiv.innerHTML = '';
+                setStatus('');
+            }
+        });
+
+        // on load prefill from snapshot if present
+        (function loadSnapshot(){
+            const snap = localStorage.getItem('lastParsedCode');
+            if (snap) codeInput.value = snap;
+        })();
+
+    })();
 </script>
-
 </body>
 </html>
