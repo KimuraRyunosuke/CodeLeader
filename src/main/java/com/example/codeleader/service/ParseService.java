@@ -18,7 +18,7 @@ public class ParseService {
             String rawLine = lines[i];
             String line = rawLine.trim();
             if (line.isEmpty()) {
-                result.add(makeEntry(i + 1, rawLine, "blank"));
+                result.add(makeEntry(i + 1, rawLine, "空行"));
                 continue;
             }
 
