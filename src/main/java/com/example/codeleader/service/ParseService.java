@@ -24,31 +24,31 @@ public class ParseService {
 
             String type;
             if (line.startsWith("package ")) {
-                type = "package";
+                type = "パッケージ宣言";
             } else if (line.startsWith("import ")) {
-                type = "import";
+                type = "インポート宣言";
             } else if (line.startsWith("@")) {
-                type = "annotation";
+                type = "アノテーション";
             } else if (line.contains(" class ")) {
-                type = "class";
+                type = "クラス定義";
                 currentClassName = extractClassName(line);
             } else if (line.contains(" interface ")) {
-                type = "interface";
+                type = "インターフェース定義";
             } else if (line.contains(" enum ")) {
-                type = "enum";
+                type = "列挙型定義";
             } else if (line.matches(".*\\(.*\\).*\\{?")) {
                 // constructor 判定
                 if (currentClassName != null && line.contains(currentClassName + "(")) {
-                    type = "constructor";
+                    type = "コンストラクタ定義";
                 } else {
-                    type = "method";
+                    type = "メソッド定義";
                 }
             } else if (line.matches(".*(private|public|protected).+;")) {
-                type = "field";
+                type = "フィールド定義";
             } else if (line.startsWith("//") || line.startsWith("/*") || line.startsWith("*")) {
-                type = "comment";
+                type = "コメント";
             } else {
-                type = "other";
+                type = "その他";
             }
 
             result.add(makeEntry(i + 1, rawLine, type));
