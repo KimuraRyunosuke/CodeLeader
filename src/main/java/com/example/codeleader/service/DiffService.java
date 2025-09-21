@@ -20,12 +20,11 @@ public class DiffService {
 
         for (AbstractDelta<String> delta : patch.getDeltas()) {
             Map<String, Object> diffEntry = new HashMap<>();
-            // 差分タイプを日本語に変換して格納
-            diffEntry.put("type", localizeDiffType(delta.getType().toString()));
-            diffEntry.put("source", delta.getSource().getLines());
-            diffEntry.put("target", delta.getTarget().getLines());
-            diffEntry.put("srcPos", delta.getSource().getPosition());
-            diffEntry.put("tgtPos", delta.getTarget().getPosition());
+            diffEntry.put("変更種別", localizeDiffType(delta.getType().toString())); // 日本語化
+            diffEntry.put("旧コードの内容", delta.getSource().getLines());          // source
+            diffEntry.put("新コードの内容", delta.getTarget().getLines());          // target
+            diffEntry.put("旧コードの位置", delta.getSource().getPosition());      // srcPos
+            diffEntry.put("新コードの位置", delta.getTarget().getPosition());      // tgtPos
 
             diffs.add(diffEntry);
         }
@@ -33,17 +32,12 @@ public class DiffService {
         return diffs;
     }
 
-    // 差分タイプを日本語に変換するメソッド
     private String localizeDiffType(String type) {
         switch (type.toUpperCase()) {
-            case "CHANGE":
-                return "変更";
-            case "INSERT":
-                return "追加";
-            case "DELETE":
-                return "削除";
-            default:
-                return "その他";
+            case "CHANGE": return "変更";
+            case "INSERT": return "追加";
+            case "DELETE": return "削除";
+            default: return "その他";
         }
     }
 }
