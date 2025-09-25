@@ -20,11 +20,11 @@ public class DiffService {
 
         for (AbstractDelta<String> delta : patch.getDeltas()) {
             Map<String, Object> diffEntry = new HashMap<>();
-            diffEntry.put("type", delta.getType().toString());
-            diffEntry.put("source", delta.getSource().getLines());
-            diffEntry.put("target", delta.getTarget().getLines());
-            diffEntry.put("srcPos", delta.getSource().getPosition());
-            diffEntry.put("tgtPos", delta.getTarget().getPosition());
+            diffEntry.put("種類", delta.getType().toString());
+            diffEntry.put("旧コードの内容", delta.getSource().getLines());
+            diffEntry.put("新コードの内容", delta.getTarget().getLines());
+            diffEntry.put("旧コードの位置", delta.getSource().getPosition());
+            diffEntry.put("新コードの位置", delta.getTarget().getPosition());
 
             diffs.add(diffEntry);
         }
