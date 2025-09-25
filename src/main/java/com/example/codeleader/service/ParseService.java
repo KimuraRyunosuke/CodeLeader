@@ -29,6 +29,12 @@ public class ParseService {
                 type = "インポート宣言";
             } else if (line.startsWith("@")) {
                 type = "アノテーション";
+            } else if (line.contains(" abstract class ")) {
+                type = "抽象クラス定義";
+                currentClassName = extractClassName(line);
+            } else if (line.contains(" final class ")) {
+                type = "finalクラス定義";
+                currentClassName = extractClassName(line);
             } else if (line.contains(" class ")) {
                 type = "クラス定義";
                 currentClassName = extractClassName(line);
@@ -43,8 +49,34 @@ public class ParseService {
                 } else {
                     type = "メソッド定義";
                 }
+            } else if (line.matches(".*static\\s+final.+;")) {
+                type = "定数定義";
             } else if (line.matches(".*(private|public|protected).+;")) {
                 type = "フィールド定義";
+            } else if (line.startsWith("if ") || line.startsWith("if(")) {
+                type = "条件分岐 (if)";
+            } else if (line.startsWith("else")) {
+                type = "条件分岐 (else)";
+            } else if (line.startsWith("for ") || line.startsWith("for(")) {
+                type = "ループ (for)";
+            } else if (line.startsWith("while ") || line.startsWith("while(")) {
+                type = "ループ (while)";
+            } else if (line.startsWith("do ")) {
+                type = "ループ (do-while)";
+            } else if (line.startsWith("switch ")) {
+                type = "条件分岐 (switch)";
+            } else if (line.startsWith("case ") || line.startsWith("default:")) {
+                type = "条件分岐 (case/default)";
+            } else if (line.startsWith("try")) {
+                type = "例外処理 (try)";
+            } else if (line.startsWith("catch")) {
+                type = "例外処理 (catch)";
+            } else if (line.startsWith("finally")) {
+                type = "例外処理 (finally)";
+            } else if (line.startsWith("return ")) {
+                type = "return文";
+            } else if (line.contains("System.out.println")) {
+                type = "標準出力";
             } else if (line.startsWith("//") || line.startsWith("/*") || line.startsWith("*")) {
                 type = "コメント";
             } else {
@@ -66,7 +98,6 @@ public class ParseService {
     }
 
     private String extractClassName(String line) {
-        // 例: "public class User {" → "User"
         String[] parts = line.split("\\s+");
         for (int i = 0; i < parts.length; i++) {
             if (parts[i].equals("class") && i + 1 < parts.length) {
@@ -76,3 +107,4 @@ public class ParseService {
         return null;
     }
 }
+
