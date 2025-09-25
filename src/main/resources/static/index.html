@@ -129,13 +129,13 @@
 
         <!-- 右：結果 -->
         <div class="card">
-            <label>構造解析 結果（JSON）</label>
+            <label>構造解析 結果</label>
             <pre id="day1-result" class="result-box">構造解析の結果がここに表示されます</pre>
 
             <label style="margin-top:12px">差分解析 結果（全エントリ）</label>
             <div id="diff-results" style="margin-top:8px;"></div>
 
-            <label style="margin-top:12px">差分（生 JSON）</label>
+            <label style="margin-top:12px">差分</label>
             <pre id="day2-result" class="result-box">差分の raw JSON がここに表示されます</pre>
         </div>
     </div>
@@ -282,7 +282,7 @@
                         const srcTitle = document.createElement('div');
                         srcTitle.style.fontWeight = '700';
                         srcTitle.style.marginBottom = '6px';
-                        srcTitle.textContent = '旧 (コード)';
+                        srcTitle.textContent = '旧コード';
                         srcBlock.appendChild(srcTitle);
                         const srcLines = document.createElement('div');
                         srcLines.style.whiteSpace = 'pre-wrap';
@@ -302,7 +302,7 @@
                         const tgtTitle = document.createElement('div');
                         tgtTitle.style.fontWeight = '700';
                         tgtTitle.style.marginBottom = '6px';
-                        tgtTitle.textContent = '新 (コード)';
+                        tgtTitle.textContent = '新コード';
                         tgtBlock.appendChild(tgtTitle);
                         const tgtLines = document.createElement('div');
                         tgtLines.style.whiteSpace = 'pre-wrap';
