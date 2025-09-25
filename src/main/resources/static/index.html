@@ -289,9 +289,9 @@
                         srcLines.style.fontFamily = 'ui-monospace,monospace';
                         srcLines.style.fontSize = '13px';
                         // entry.source can be array or string
-                        if (entry.source) {
-                            if (Array.isArray(entry.source)) srcLines.textContent = entry.source.join('\n');
-                            else srcLines.textContent = String(entry.source);
+                        if (entry["元コード"]) {
+                            if (Array.isArray(entry["元コード"])) srcLines.textContent = entry["元コード"].join('\n');
+                            else srcLines.textContent = String(entry["元コード"]);
                         } else srcLines.textContent = '(なし)';
                         srcBlock.appendChild(srcLines);
                         linesWrap.appendChild(srcBlock);
@@ -308,9 +308,9 @@
                         tgtLines.style.whiteSpace = 'pre-wrap';
                         tgtLines.style.fontFamily = 'ui-monospace,monospace';
                         tgtLines.style.fontSize = '13px';
-                        if (entry.target) {
-                            if (Array.isArray(entry.target)) tgtLines.textContent = entry.target.join('\n');
-                            else tgtLines.textContent = String(entry.target);
+                        if (entry["新コード"]) {
+                            if (Array.isArray(entry["新コード"])) tgtLines.textContent = entry["新コード"].join('\n');
+                            else tgtLines.textContent = String(entry["新コード"]);
                         } else tgtLines.textContent = '(なし)';
                         tgtBlock.appendChild(tgtLines);
                         linesWrap.appendChild(tgtBlock);
