@@ -53,19 +53,21 @@ public class ParseService {
                 type = "定数定義";
             } else if (line.matches(".*(private|public|protected).+;")) {
                 type = "フィールド定義";
-            } else if (line.startsWith("if ") || line.startsWith("if(")) {
+            } else if (line.matches("^if\\b.*")) {
                 type = "条件分岐 (if)";
-            } else if (line.startsWith("else")) {
+            } else if (line.matches("^else\\s+if\\b.*")) {
+                type = "条件分岐 (else if)";
+            } else if (line.matches("^else\\b.*")) {
                 type = "条件分岐 (else)";
-            } else if (line.startsWith("for ") || line.startsWith("for(")) {
+            } else if (line.matches("^for\\b.*")) {
                 type = "ループ (for)";
-            } else if (line.startsWith("while ") || line.startsWith("while(")) {
+            } else if (line.matches("^while\\b.*")) {
                 type = "ループ (while)";
-            } else if (line.startsWith("do ")) {
+            } else if (line.matches("^do\\b.*")) {
                 type = "ループ (do-while)";
-            } else if (line.startsWith("switch ")) {
+            } else if (line.matches("^switch\\b.*")) {
                 type = "条件分岐 (switch)";
-            } else if (line.startsWith("case ") || line.startsWith("default:")) {
+            } else if (line.matches("^(case\\b.*|default:)")) {
                 type = "条件分岐 (case/default)";
             } else if (line.startsWith("try")) {
                 type = "例外処理 (try)";
