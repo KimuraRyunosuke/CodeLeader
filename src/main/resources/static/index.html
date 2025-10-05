@@ -109,6 +109,7 @@
             <div class="controls">
                 <button id="analyze-btn">構造解析（送信）</button>
                 <button id="save-snapshot" class="secondary">スナップショット保存</button>
+                <button id="restore-snapshot" class="secondary">スナップショット復元</button>
                 <span id="status" class="muted"></span>
             </div>
 
@@ -214,6 +215,20 @@
             setStatus('スナップショットを保存しました', false);
             setTimeout(()=>setStatus(''), 1600);
         });
+
+        // スナップショット復元
+const restoreSnapshotBtn = document.getElementById('restore-snapshot');
+restoreSnapshotBtn.addEventListener('click', () => {
+    const snap = localStorage.getItem('lastParsedCode');
+    if (!snap) {
+        alert('復元できるスナップショットがありません');
+        return;
+    }
+    codeInput.value = snap;
+    setStatus('スナップショットを復元しました', false);
+    setTimeout(() => setStatus(''), 1600);
+});
+
 
         // ===== Day2: 差分解析送信 =====
         diffBtn.addEventListener('click', async () => {
