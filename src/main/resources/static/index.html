@@ -225,7 +225,7 @@ diffBtn.addEventListener('click', async () => {
                 // メタ情報
                 const meta = document.createElement('div');
                 meta.className = 'diff-meta';
-                const type = (entry.type || '').toLowerCase();
+                const type = ((entry.type || entry["種類"] || '') + '').toLowerCase();
                 const tag = document.createElement('span');
                 tag.className = 'tag ' + (
                     type === 'change' ? 'modified' :
