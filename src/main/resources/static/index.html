@@ -193,7 +193,7 @@
         document.getElementById('restore-old').addEventListener('click', ()=>restoreSnapshot(oldCodeEl));
         document.getElementById('restore-new').addEventListener('click', ()=>restoreSnapshot(newCodeEl));
 
-// ===== 差分解析送信 =====
+// ===== 差分解析送信（詳細レンダリング付き） =====
 diffBtn.addEventListener('click', async () => {
     const oldSrc = oldCodeEl.value.trim();
     const newSrc = newCodeEl.value.trim();
@@ -201,42 +201,106 @@ diffBtn.addEventListener('click', async () => {
 
     diffBtn.disabled = true;
     setStatus('差分解析中…');
+    day2ResultPre.textContent = '';
+    diffResultsDiv.innerHTML = '';
+
     try {
-        const data = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
-        day2ResultPre.textContent = JSON.stringify(data, null, 2);
-        setStatus('差分解析完了');
+        const resp = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
 
-        // 🧩 差分リストの描画を復元
-        diffResultsDiv.innerHTML = '';
-        if (Array.isArray(data) && data.length > 0) {
-            data.forEach(diff => {
-                const div = document.createElement('div');
-                div.className = 'diff-entry';
+        // JSONの生データ表示
+        day2ResultPre.textContent = JSON.stringify(resp, null, 2);
 
-                const tagClass =
-                    diff['種類'] === 'DELETE' ? 'removed' :
-                    diff['種類'] === 'INSERT' ? 'added' : 'modified';
-
-                div.innerHTML = `
-                    <div class="diff-meta">
-                        <span class="tag ${tagClass}">${diff['種類']}</span>
-                        <span>元位置: ${diff['元の位置']}, 新位置: ${diff['変更後位置']}</span>
-                    </div>
-                    <div><strong>元コード:</strong><pre>${(diff['元コード'] || []).join('\n')}</pre></div>
-                    <div><strong>新コード:</strong><pre>${(diff['新コード'] || []).join('\n')}</pre></div>
-                `;
-                diffResultsDiv.appendChild(div);
-            });
+        if (!Array.isArray(resp) || resp.length === 0) {
+            diffResultsDiv.innerHTML = `
+                <div class="diff-entry">
+                    <div class="diff-meta"><div class="tag added">差分なし</div></div>
+                    <div class="note">旧コードと新コードに差分は見つかりませんでした。</div>
+                </div>`;
         } else {
-            diffResultsDiv.innerHTML = '<div class="muted">差分はありません。</div>';
+            const frag = document.createDocumentFragment();
+            resp.forEach((entry, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'diff-entry';
+
+                // メタ情報
+                const meta = document.createElement('div');
+                meta.className = 'diff-meta';
+                const type = (entry.type || '').toLowerCase();
+                const tag = document.createElement('span');
+                tag.className = 'tag ' + (
+                    type === 'change' ? 'modified' :
+                    type === 'insert' || type === 'add' ? 'added' :
+                    type === 'delete' || type === 'remove' ? 'removed' : 'modified'
+                );
+
+                let typeLabel = entry.type || '';
+                if (type === 'change' || type === 'modify' || type === 'modified') typeLabel = '変更';
+                else if (type === 'insert' || type === 'add') typeLabel = '追加';
+                else if (type === 'delete' || type === 'remove') typeLabel = '削除';
+                else typeLabel = 'その他';
+                tag.textContent = typeLabel.toUpperCase();
+
+                meta.appendChild(tag);
+
+                const info = document.createElement('div');
+                info.style.marginLeft = '8px';
+                info.style.color = '#374151';
+                info.style.fontSize = '13px';
+                info.textContent = `エントリ ${idx + 1} — 元の位置: ${entry["元の位置"] ?? '-'} 変更後位置: ${entry["変更後位置"] ?? '-'}`;
+                meta.appendChild(info);
+
+                wrapper.appendChild(meta);
+
+                // 差分ブロック
+                const linesWrap = document.createElement('div');
+                linesWrap.className = 'diff-lines';
+                linesWrap.style.display = 'flex';
+                linesWrap.style.gap = '8px';
+                linesWrap.style.flexWrap = 'wrap';
+
+                // 旧コード
+                const srcBlock = document.createElement('div');
+                srcBlock.className = 'diff-block removed';
+                srcBlock.style.flex = '1';
+                srcBlock.style.minWidth = '220px';
+                srcBlock.style.padding = '8px';
+                srcBlock.style.borderRadius = '6px';
+                srcBlock.style.background = 'var(--removed-bg)';
+                srcBlock.style.border = '1px solid #eef2f7';
+                srcBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">旧コード</div><div>${Array.isArray(entry["元コード"]) ? entry["元コード"].join('\n') : (entry["元コード"] || '(なし)')}</div>`;
+
+                // 新コード
+                const tgtBlock = document.createElement('div');
+                tgtBlock.className = 'diff-block added';
+                tgtBlock.style.flex = '1';
+                tgtBlock.style.minWidth = '220px';
+                tgtBlock.style.padding = '8px';
+                tgtBlock.style.borderRadius = '6px';
+                tgtBlock.style.background = 'var(--added-bg)';
+                tgtBlock.style.border = '1px solid #eef2f7';
+                tgtBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">新コード</div><div>${Array.isArray(entry["新コード"]) ? entry["新コード"].join('\n') : (entry["新コード"] || '(なし)')}</div>`;
+
+                linesWrap.appendChild(srcBlock);
+                linesWrap.appendChild(tgtBlock);
+                wrapper.appendChild(linesWrap);
+                frag.appendChild(wrapper);
+            });
+            diffResultsDiv.appendChild(frag);
         }
 
+        setStatus('差分解析完了');
     } catch (err) {
+        console.error(err);
         day2ResultPre.textContent = 'エラー: ' + err.message;
+        diffResultsDiv.innerHTML = `
+            <div class="diff-entry">
+                <div class="diff-meta"><div class="tag removed">ERROR</div></div>
+                <div class="note">${err.message}</div>
+            </div>`;
         setStatus('差分解析エラー', true);
     } finally {
         diffBtn.disabled = false;
-        setTimeout(()=>setStatus(''),2000);
+        setTimeout(()=>setStatus(''), 2200);
     }
 });
 
