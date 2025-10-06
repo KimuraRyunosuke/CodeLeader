@@ -171,7 +171,7 @@
                 setTimeout(()=>setStatus(''), 2000);
             }
         });
- 
+
         // ===== スナップショット保存 =====
         saveSnapshotBtn.addEventListener('click', () => {
             const code = codeInput.value.trim();
@@ -193,26 +193,53 @@
         document.getElementById('restore-old').addEventListener('click', ()=>restoreSnapshot(oldCodeEl));
         document.getElementById('restore-new').addEventListener('click', ()=>restoreSnapshot(newCodeEl));
 
-        // ===== 差分解析送信 =====
-        diffBtn.addEventListener('click', async () => {
-            const oldSrc = oldCodeEl.value.trim();
-            const newSrc = newCodeEl.value.trim();
-            if (!oldSrc || !newSrc) return alert('旧コードと新コードの両方を入力してください');
+// ===== 差分解析送信 =====
+diffBtn.addEventListener('click', async () => {
+    const oldSrc = oldCodeEl.value.trim();
+    const newSrc = newCodeEl.value.trim();
+    if (!oldSrc || !newSrc) return alert('旧コードと新コードの両方を入力してください');
 
-            diffBtn.disabled = true;
-            setStatus('差分解析中…');
-            try {
-                const data = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
-                day2ResultPre.textContent = JSON.stringify(data, null, 2);
-                setStatus('差分解析完了');
-            } catch (err) {
-                day2ResultPre.textContent = 'エラー: ' + err.message;
-                setStatus('差分解析エラー', true);
-            } finally {
-                diffBtn.disabled = false;
-                setTimeout(()=>setStatus(''),2000);
-            }
-        });
+    diffBtn.disabled = true;
+    setStatus('差分解析中…');
+    try {
+        const data = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
+        day2ResultPre.textContent = JSON.stringify(data, null, 2);
+        setStatus('差分解析完了');
+
+        // 🧩 差分リストの描画を復元
+        diffResultsDiv.innerHTML = '';
+        if (Array.isArray(data) && data.length > 0) {
+            data.forEach(diff => {
+                const div = document.createElement('div');
+                div.className = 'diff-entry';
+
+                const tagClass =
+                    diff['種類'] === 'DELETE' ? 'removed' :
+                    diff['種類'] === 'INSERT' ? 'added' : 'modified';
+
+                div.innerHTML = `
+                    <div class="diff-meta">
+                        <span class="tag ${tagClass}">${diff['種類']}</span>
+                        <span>元位置: ${diff['元の位置']}, 新位置: ${diff['変更後位置']}</span>
+                    </div>
+                    <div><strong>元コード:</strong><pre>${(diff['元コード'] || []).join('\n')}</pre></div>
+                    <div><strong>新コード:</strong><pre>${(diff['新コード'] || []).join('\n')}</pre></div>
+                `;
+                diffResultsDiv.appendChild(div);
+            });
+        } else {
+            diffResultsDiv.innerHTML = '<div class="muted">差分はありません。</div>';
+        }
+
+    } catch (err) {
+        day2ResultPre.textContent = 'エラー: ' + err.message;
+        setStatus('差分解析エラー', true);
+    } finally {
+        diffBtn.disabled = false;
+        setTimeout(()=>setStatus(''),2000);
+    }
+});
+
 
         // ===== 入力クリア =====
         clearBtn.addEventListener('click', () => {
