@@ -228,15 +228,15 @@ diffBtn.addEventListener('click', async () => {
                 const type = ((entry.type || entry["種類"] || '') + '').toLowerCase();
                 const tag = document.createElement('span');
                 tag.className = 'tag ' + (
-                    type === '変更' ? 'modified' :
-                    type === '追加' || type === 'add' ? 'added' :
-                    type === '削除' || type === 'remove' ? 'removed' : 'modified'
+                    type === 'change' ? 'modified' :
+                    type === 'insert' || type === 'add' ? 'added' :
+                    type === 'delete' || type === 'remove' ? 'removed' : 'modified'
                 );
 
                 let typeLabel = entry.type || '';
-                if (type === '変更' || type === 'modify' || type === 'modified') typeLabel = '変更';
-                else if (type === '追加' || type === 'add') typeLabel = '追加';
-                else if (type === '削除' || type === 'remove') typeLabel = '削除';
+                if (type === 'change' || type === 'modify' || type === 'modified') typeLabel = '変更';
+                else if (type === 'insert' || type === 'add') typeLabel = '追加';
+                else if (type === 'delete' || type === 'remove') typeLabel = '削除';
                 else typeLabel = 'その他';
                 tag.textContent = typeLabel.toUpperCase();
 
