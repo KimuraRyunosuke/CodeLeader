@@ -97,7 +97,6 @@
             <label for="day2-old-code">差分解析 — 旧コード</label>
             <textarea id="day2-old-code" placeholder="以前のコード（旧）をここに"></textarea>
             <div class="controls">
-                <button id="save-old" class="secondary">スナップショット保存</button>
                 <select id="snapshotList-diff-old">
                     <option value="">▼ 過去のスナップショット</option>
                 </select>
@@ -107,13 +106,11 @@
             <label for="day2-new-code" style="margin-top:8px;">新コード</label>
             <textarea id="day2-new-code" placeholder="新しいコード（新）をここに"></textarea>
             <div class="controls">
-                <button id="save-new" class="secondary">スナップショット保存</button>
                 <select id="snapshotList-diff-new">
                     <option value="">▼ 過去のスナップショット</option>
                 </select>
                 <button id="restore-new" class="secondary">スナップショット復元</button>
             </div>
-
 
             <div class="controls" style="margin-top:8px;">
                 <button id="day2-diff-btn">差分解析（送信）</button>
@@ -381,6 +378,77 @@
             setStatus('');
         });
     })();
+    
+    function saveSnapshot(type, code) {
+  const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
+  all.push({
+    id: new Date().toISOString(),
+    type,
+    code
+  });
+  localStorage.setItem('snapshots', JSON.stringify(all));
+  updateSnapshotList(type);
+}
+
+function updateSnapshotList(type) {
+  const list = document.getElementById(`snapshotList-${type}`);
+  if (!list) return;
+  const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
+  list.innerHTML = '<option value="">▼ 過去のスナップショット</option>';
+  all.filter(s => s.type === type)
+     .forEach(s => {
+       const opt = document.createElement('option');
+       opt.value = s.id;
+       opt.textContent = s.id.replace('T', ' ').slice(0, 19);
+       list.appendChild(opt);
+     });
+}
+
+function loadSnapshotFromList(type) {
+  const list = document.getElementById(`snapshotList-${type}`);
+  if (!list) return;
+  const id = list.value;
+  if (!id) return;
+  const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
+  const snap = all.find(s => s.id === id);
+  if (!snap) return;
+
+  // 各タイプごとに対応欄へ復元
+  if (type === 'structure') document.getElementById('codeInput').value = snap.code;
+  if (type === 'diff-old') document.getElementById('day2-old-code').value = snap.code;
+  if (type === 'diff-new') document.getElementById('day2-new-code').value = snap.code;
+}
+
+/* -----------------------------
+   初期化
+----------------------------- */
+window.addEventListener('load', () => {
+  ['structure', 'diff-old', 'diff-new'].forEach(updateSnapshotList);
+
+  // 各ボタンに確実にイベントをバインド
+  const bind = (id, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', handler);
+  };
+
+  // 構造解析
+  bind('save-structure', () =>
+    saveSnapshot('structure', document.getElementById('codeInput').value)
+  );
+  bind('restore-structure', () => loadSnapshotFromList('structure'));
+
+  // 差分解析（旧コード）
+  bind('save-old', () =>
+    saveSnapshot('diff-old', document.getElementById('day2-old-code').value)
+  );
+  bind('restore-old', () => loadSnapshotFromList('diff-old'));
+
+  // 差分解析（新コード）
+  bind('save-new', () =>
+    saveSnapshot('diff-new', document.getElementById('day2-new-code').value)
+  );
+  bind('restore-new', () => loadSnapshotFromList('diff-new'));
+});
 </script>
 </body>
 </html>
