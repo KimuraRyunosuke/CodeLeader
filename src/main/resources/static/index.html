@@ -97,6 +97,7 @@
             <label for="day2-old-code">差分解析 — 旧コード</label>
             <textarea id="day2-old-code" placeholder="以前のコード（旧）をここに"></textarea>
             <div class="controls">
+                <button id="save-old" class="secondary">スナップショット保存</button>
                 <select id="snapshotList-diff-old">
                     <option value="">▼ 過去のスナップショット</option>
                 </select>
@@ -106,11 +107,13 @@
             <label for="day2-new-code" style="margin-top:8px;">新コード</label>
             <textarea id="day2-new-code" placeholder="新しいコード（新）をここに"></textarea>
             <div class="controls">
+                <button id="save-new" class="secondary">スナップショット保存</button>
                 <select id="snapshotList-diff-new">
                     <option value="">▼ 過去のスナップショット</option>
                 </select>
                 <button id="restore-new" class="secondary">スナップショット復元</button>
             </div>
+
 
             <div class="controls" style="margin-top:8px;">
                 <button id="day2-diff-btn">差分解析（送信）</button>
