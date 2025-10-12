@@ -66,6 +66,7 @@
         .tag.added{background:var(--added-bg);color:#065f46;border:1px solid #b6f0c6;}
         .tag.removed{background:var(--removed-bg);color:#7f1d1d;border:1px solid #ffcfce;}
         footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+        .note{font-size:12px;color:var(--muted);}
     </style>
 </head>
 <body>
@@ -86,9 +87,8 @@
                 <button id="analyze-btn">構造解析（送信）</button>
                 <button id="save-snapshot" class="secondary">スナップショット保存</button>
                 <select id="snapshotList-structure">
-                    <option value="">▼ 過去のスナップショット</option>
+                    <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
-                <button id="restore-structure" class="secondary">スナップショット復元</button>
                 <span id="status" class="muted"></span>
             </div>
 
@@ -98,18 +98,16 @@
             <textarea id="day2-old-code" placeholder="以前のコード（旧）をここに"></textarea>
             <div class="controls">
                 <select id="snapshotList-diff-old">
-                    <option value="">▼ 過去のスナップショット</option>
+                    <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
-                <button id="restore-old" class="secondary">スナップショット復元</button>
             </div>
 
             <label for="day2-new-code" style="margin-top:8px;">新コード</label>
             <textarea id="day2-new-code" placeholder="新しいコード（新）をここに"></textarea>
             <div class="controls">
                 <select id="snapshotList-diff-new">
-                    <option value="">▼ 過去のスナップショット</option>
+                    <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
-                <button id="restore-new" class="secondary">スナップショット復元</button>
             </div>
 
             <div class="controls" style="margin-top:8px;">
@@ -189,7 +187,7 @@
                 return opt;
             });
             lists.forEach(list => {
-                list.innerHTML = '<option value="">▼ 過去のスナップショット</option>';
+                list.innerHTML = '<option value="">▼ 過去のスナップショット（選択で復元）</option>';
                 opts.forEach(o => list.appendChild(o.cloneNode(true)));
             });
         }
