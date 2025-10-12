@@ -67,6 +67,7 @@
                 <select id="snapshotList-structure">
                     <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
+                <button id="rename-structure" class="secondary">名前変更</button>
                 <span id="status" class="muted"></span>
             </div>
 
@@ -78,6 +79,7 @@
                 <select id="snapshotList-diff-old">
                     <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
+                <button id="rename-diff-old" class="secondary">名前変更</button>
             </div>
 
             <label for="day2-new-code" style="margin-top:8px;">新コード</label>
@@ -86,6 +88,7 @@
                 <select id="snapshotList-diff-new">
                     <option value="">▼ 過去のスナップショット（選択で復元）</option>
                 </select>
+                <button id="rename-diff-new" class="secondary">名前変更</button>
             </div>
 
             <div class="controls" style="margin-top:8px;">
@@ -125,156 +128,181 @@
         const day2ResultPre = document.getElementById('day2-result');
         const diffResultsDiv = document.getElementById('diff-results');
 
-        function setStatus(msg, isError = false) {
+        function setStatus(msg, isError=false){
             statusSpan.textContent = msg || '';
             statusSpan.style.color = isError ? '#b91c1c' : '#065f46';
         }
 
-        async function postJson(url, body) {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify(body)
+        async function postJson(url, body){
+            const res = await fetch(url,{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify(body)
             });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if(!res.ok) throw new Error(`HTTP ${res.status}`);
             return res.json();
         }
 
         // ===== スナップショット管理 =====
-        function saveSnapshot(code) {
-            if (!code || !code.trim()) return alert('空のコードは保存できません。');
+        function saveSnapshot(code){
+            if(!code || !code.trim()) return alert('空のコードは保存できません。');
             const name = prompt('スナップショット名を入力してください（未入力の場合は日時）') || new Date().toISOString();
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            all.push({ id: new Date().toISOString(), name, code });
-            while (all.length > 10) all.shift();
+            all.push({id:new Date().toISOString(), name, code});
+            while(all.length>10) all.shift();
             localStorage.setItem('snapshots', JSON.stringify(all));
             updateSnapshotLists();
             setStatus('スナップショットを保存しました');
             setTimeout(()=>setStatus(''),1600);
         }
 
-        function updateSnapshotLists() {
+        function updateSnapshotLists(){
             const lists = [
-                document.getElementById('snapshotList-structure'),
-                document.getElementById('snapshotList-diff-old'),
-                document.getElementById('snapshotList-diff-new')
-            ].filter(Boolean);
-            const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            const opts = all.slice().reverse().map(s => {
+                'snapshotList-structure','snapshotList-diff-old','snapshotList-diff-new'
+            ];
+            const all = JSON.parse(localStorage.getItem('snapshots')||'[]');
+            const opts = all.slice().reverse().map(s=>{
                 const opt = document.createElement('option');
                 opt.value = s.id;
                 opt.textContent = s.name;
                 return opt;
             });
-            lists.forEach(list => {
+            lists.forEach(id=>{
+                const list = document.getElementById(id);
                 list.innerHTML = '<option value="">▼ 過去のスナップショット（選択で復元）</option>';
-                opts.forEach(o => list.appendChild(o.cloneNode(true)));
+                opts.forEach(o=>list.appendChild(o.cloneNode(true)));
             });
         }
 
-        function loadSnapshotTo(targetId, listId) {
+        function loadSnapshotTo(targetId,listId){
             const list = document.getElementById(listId);
             const id = list.value;
-            if (!id) return;
-            const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            const snap = all.find(s => s.id === id);
-            if (!snap) return;
+            if(!id) return;
+            const all = JSON.parse(localStorage.getItem('snapshots')||'[]');
+            const snap = all.find(s=>s.id===id);
+            if(!snap) return;
             document.getElementById(targetId).value = snap.code;
             setStatus('スナップショットを復元しました');
             setTimeout(()=>setStatus(''),1600);
         }
 
-        function renameSnapshot(listId) {
+        function renameSnapshot(listId){
             const list = document.getElementById(listId);
             const id = list.value;
-            if (!id) return alert('変更するスナップショットを選択してください。');
-            const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            const snap = all.find(s => s.id === id);
-            if (!snap) return;
-            const newName = prompt('新しいスナップショット名を入力してください', snap.name);
-            if (!newName) return;
-            snap.name = newName;
+            if(!id) return alert('スナップショットを選択してください');
+            const all = JSON.parse(localStorage.getItem('snapshots')||'[]');
+            const snap = all.find(s=>s.id===id);
+            const newName = prompt('新しい名前を入力してください', snap.name);
+            if(newName) snap.name = newName;
             localStorage.setItem('snapshots', JSON.stringify(all));
             updateSnapshotLists();
-            setStatus('スナップショット名を更新しました');
-            setTimeout(() => setStatus(''), 1600);
+            setStatus('スナップショット名を変更しました');
+            setTimeout(()=>setStatus(''),1600);
         }
 
-        window.addEventListener('load', () => {
-            updateSnapshotLists();
+        window.addEventListener('load', updateSnapshotLists);
+        document.getElementById('snapshotList-structure').addEventListener('change',()=>loadSnapshotTo('code-input','snapshotList-structure'));
+        document.getElementById('snapshotList-diff-old').addEventListener('change',()=>loadSnapshotTo('day2-old-code','snapshotList-diff-old'));
+        document.getElementById('snapshotList-diff-new').addEventListener('change',()=>loadSnapshotTo('day2-new-code','snapshotList-diff-new'));
 
-            document.getElementById('snapshotList-structure').addEventListener('change',()=>loadSnapshotTo('code-input','snapshotList-structure'));
-            document.getElementById('snapshotList-diff-old').addEventListener('change',()=>loadSnapshotTo('day2-old-code','snapshotList-diff-old'));
-            document.getElementById('snapshotList-diff-new').addEventListener('change',()=>loadSnapshotTo('day2-new-code','snapshotList-diff-new'));
+        // 名前変更ボタン
+        document.getElementById('rename-structure').addEventListener('click',()=>renameSnapshot('snapshotList-structure'));
+        document.getElementById('rename-diff-old').addEventListener('click',()=>renameSnapshot('snapshotList-diff-old'));
+        document.getElementById('rename-diff-new').addEventListener('click',()=>renameSnapshot('snapshotList-diff-new'));
 
-            // 名前変更ボタン追加
-            [ ['snapshotList-structure', 'code-input'],
-              ['snapshotList-diff-old', 'day2-old-code'],
-              ['snapshotList-diff-new', 'day2-new-code'] ].forEach(([listId, target]) => {
-                const list = document.getElementById(listId);
-                const btn = document.createElement('button');
-                btn.textContent = '名前変更';
-                btn.className = 'secondary';
-                btn.addEventListener('click', () => renameSnapshot(listId));
-                list.parentElement.appendChild(btn);
-            });
-        });
-
-        analyzeBtn.addEventListener('click', async () => {
+        // ===== 構造解析 =====
+        analyzeBtn.addEventListener('click', async ()=>{
             const code = codeInput.value.trim();
-            if (!code) return alert('コードを入力してください。');
-            analyzeBtn.disabled = true;
+            if(!code) return alert('コードを入力してください。');
+            analyzeBtn.disabled=true;
             setStatus('構造解析を送信中…');
-            day1ResultPre.textContent = '';
-            try {
-                const data = await postJson('/api/analysis/parse-structure', { code });
-                day1ResultPre.textContent = JSON.stringify(data, null, 2);
+            day1ResultPre.textContent='';
+            try{
+                const data = await postJson('/api/analysis/parse-structure',{code});
+                day1ResultPre.textContent = JSON.stringify(data,null,2);
                 localStorage.setItem('lastParsedCode', code);
                 setStatus('構造解析完了');
-            } catch (err) {
-                day1ResultPre.textContent = 'エラー: ' + err.message;
-                setStatus('解析エラー', true);
-            } finally {
-                analyzeBtn.disabled = false;
-                setTimeout(()=>setStatus(''), 2000);
+            }catch(err){
+                day1ResultPre.textContent='エラー: '+err.message;
+                setStatus('解析エラー',true);
+            }finally{
+                analyzeBtn.disabled=false;
+                setTimeout(()=>setStatus(''),2000);
             }
         });
 
-        saveSnapshotBtn.addEventListener('click', () => {
+        saveSnapshotBtn.addEventListener('click', ()=>{
             const code = codeInput.value.trim();
-            if (!code) return alert('保存するコードが空です。');
+            if(!code) return alert('保存するコードが空です。');
             saveSnapshot(code);
             localStorage.setItem('lastParsedCode', code);
         });
 
-        diffBtn.addEventListener('click', async () => {
+        // ===== 差分解析 =====
+        diffBtn.addEventListener('click', async ()=>{
             const oldSrc = oldCodeEl.value.trim();
             const newSrc = newCodeEl.value.trim();
-            if (!oldSrc || !newSrc) return alert('旧コードと新コードの両方を入力してください');
-            diffBtn.disabled = true;
+            if(!oldSrc || !newSrc) return alert('旧コードと新コードの両方を入力してください');
+            diffBtn.disabled=true;
             setStatus('差分解析中…');
-            day2ResultPre.textContent = '';
-            diffResultsDiv.innerHTML = '';
-            try {
-                const resp = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
-                day2ResultPre.textContent = JSON.stringify(resp, null, 2);
-            } catch (err) {
-                day2ResultPre.textContent = 'エラー: ' + err.message;
-                setStatus('差分解析エラー', true);
-            } finally {
-                diffBtn.disabled = false;
-                setTimeout(()=>setStatus(''),2200);
-            }
+            day2ResultPre.textContent='';
+            diffResultsDiv.innerHTML='';
+            try{
+                const resp = await postJson('/api/diff',{oldSource: oldSrc,newSource: newSrc});
+                day2ResultPre.textContent=JSON.stringify(resp,null,2);
+                if(!Array.isArray(resp)||resp.length===0){
+                    diffResultsDiv.innerHTML=`<div class="diff-entry"><div class="diff-meta"><div class="tag added">差分なし</div></div><div class="note">旧コードと新コードに差分は見つかりませんでした。</div></div>`;
+                }else{
+                    const frag=document.createDocumentFragment();
+                    resp.forEach((entry,idx)=>{
+                        const wrapper=document.createElement('div');
+                        wrapper.className='diff-entry';
+                        const meta=document.createElement('div'); meta.className='diff-meta';
+                        const type=((entry.type||entry["種類"]||'')+'').toLowerCase();
+                        const tag=document.createElement('span'); tag.className='tag '+(
+                            type.includes('change')||type.includes('modify')?'modified':
+                            type.includes('insert')||type.includes('add')?'added':
+                            type.includes('delete')||type.includes('remove')?'removed':'modified'
+                        );
+                        let typeLabel=entry.type||'';
+                        if(type.includes('change')||type.includes('modify')) typeLabel='変更';
+                        else if(type.includes('insert')||type.includes('add')) typeLabel='追加';
+                        else if(type.includes('delete')||type.includes('remove')) typeLabel='削除';
+                        else typeLabel='その他';
+                        tag.textContent=typeLabel.toUpperCase();
+                        meta.appendChild(tag);
+                        const info=document.createElement('div');
+                        info.style.marginLeft='8px'; info.style.color='#374151'; info.style.fontSize='13px';
+                        info.textContent=`エントリ ${idx+1} — 元の位置: ${entry["元の位置"]??'-'} 変更後位置: ${entry["変更後位置"]??'-'}`;
+                        meta.appendChild(info);
+                        wrapper.appendChild(meta);
+                        const linesWrap=document.createElement('div'); linesWrap.style.display='flex'; linesWrap.style.gap='8px'; linesWrap.style.flexWrap='wrap';
+                        const srcBlock=document.createElement('div'); srcBlock.style.flex='1'; srcBlock.style.minWidth='220px'; srcBlock.style.padding='8px';
+                        srcBlock.style.borderRadius='6px'; srcBlock.style.background='var(--removed-bg)'; srcBlock.style.border='1px solid #eef2f7';
+                        srcBlock.innerHTML=`<div style="font-weight:700;margin-bottom:6px;">旧コード</div><div>${Array.isArray(entry["元コード"])?entry["元コード"].join('\n'):(entry["元コード"]||'(なし)')}</div>`;
+                        const tgtBlock=document.createElement('div'); tgtBlock.style.flex='1'; tgtBlock.style.minWidth='220px'; tgtBlock.style.padding='8px';
+                        tgtBlock.style.borderRadius='6px'; tgtBlock.style.background='var(--added-bg)'; tgtBlock.style.border='1px solid #eef2f7';
+                        tgtBlock.innerHTML=`<div style="font-weight:700;margin-bottom:6px;">新コード</div><div>${Array.isArray(entry["新コード"])?entry["新コード"].join('\n'):(entry["新コード"]||'(なし)')}</div>`;
+                        linesWrap.appendChild(srcBlock); linesWrap.appendChild(tgtBlock);
+                        wrapper.appendChild(linesWrap);
+                        frag.appendChild(wrapper);
+                    });
+                    diffResultsDiv.appendChild(frag);
+                }
+                setStatus('差分解析完了');
+            }catch(err){
+                day2ResultPre.textContent='エラー: '+err.message;
+                diffResultsDiv.innerHTML=`<div class="diff-entry"><div class="diff-meta"><div class="tag removed">ERROR</div></div><div class="note">${err.message}</div></div>`;
+                setStatus('差分解析エラー',true);
+            }finally{ diffBtn.disabled=false; setTimeout(()=>setStatus(''),2200); }
         });
 
-        clearBtn.addEventListener('click', () => {
-            if (!confirm('入力欄をすべてクリアしますか？')) return;
-            codeInput.value = '';
-            oldCodeEl.value = '';
-            newCodeEl.value = '';
-            day1ResultPre.textContent = '構造解析の結果がここに表示されます';
-            day2ResultPre.textContent = '差分の raw JSON がここに表示されます';
-            diffResultsDiv.innerHTML = '';
+        clearBtn.addEventListener('click', ()=>{
+            if(!confirm('入力欄をすべてクリアしますか？')) return;
+            codeInput.value=''; oldCodeEl.value=''; newCodeEl.value='';
+            day1ResultPre.textContent='構造解析の結果がここに表示されます';
+            day2ResultPre.textContent='差分の raw JSON がここに表示されます';
+            diffResultsDiv.innerHTML='';
             setStatus('');
         });
     })();
