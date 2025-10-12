@@ -140,18 +140,13 @@
             return res.json();
         }
 
-        // ===== スナップショット管理（最大10件・名前変更対応） =====
+        // ===== スナップショット管理 =====
         function saveSnapshot(code) {
             if (!code || !code.trim()) return alert('空のコードは保存できません。');
             const name = prompt('スナップショット名を入力してください（未入力の場合は日時）') || new Date().toISOString();
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-
-            // 新しいスナップショットを追加
             all.push({ id: new Date().toISOString(), name, code });
-
-            // 上限10件に制限（古いものを削除）
             while (all.length > 10) all.shift();
-
             localStorage.setItem('snapshots', JSON.stringify(all));
             updateSnapshotLists();
             setStatus('スナップショットを保存しました');
@@ -189,12 +184,42 @@
             setTimeout(()=>setStatus(''),1600);
         }
 
-        window.addEventListener('load', updateSnapshotLists);
-        document.getElementById('snapshotList-structure').addEventListener('change',()=>loadSnapshotTo('code-input','snapshotList-structure'));
-        document.getElementById('snapshotList-diff-old').addEventListener('change',()=>loadSnapshotTo('day2-old-code','snapshotList-diff-old'));
-        document.getElementById('snapshotList-diff-new').addEventListener('change',()=>loadSnapshotTo('day2-new-code','snapshotList-diff-new'));
+        function renameSnapshot(listId) {
+            const list = document.getElementById(listId);
+            const id = list.value;
+            if (!id) return alert('変更するスナップショットを選択してください。');
+            const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
+            const snap = all.find(s => s.id === id);
+            if (!snap) return;
+            const newName = prompt('新しいスナップショット名を入力してください', snap.name);
+            if (!newName) return;
+            snap.name = newName;
+            localStorage.setItem('snapshots', JSON.stringify(all));
+            updateSnapshotLists();
+            setStatus('スナップショット名を更新しました');
+            setTimeout(() => setStatus(''), 1600);
+        }
 
-        // ===== 構造解析送信 =====
+        window.addEventListener('load', () => {
+            updateSnapshotLists();
+
+            document.getElementById('snapshotList-structure').addEventListener('change',()=>loadSnapshotTo('code-input','snapshotList-structure'));
+            document.getElementById('snapshotList-diff-old').addEventListener('change',()=>loadSnapshotTo('day2-old-code','snapshotList-diff-old'));
+            document.getElementById('snapshotList-diff-new').addEventListener('change',()=>loadSnapshotTo('day2-new-code','snapshotList-diff-new'));
+
+            // 名前変更ボタン追加
+            [ ['snapshotList-structure', 'code-input'],
+              ['snapshotList-diff-old', 'day2-old-code'],
+              ['snapshotList-diff-new', 'day2-new-code'] ].forEach(([listId, target]) => {
+                const list = document.getElementById(listId);
+                const btn = document.createElement('button');
+                btn.textContent = '名前変更';
+                btn.className = 'secondary';
+                btn.addEventListener('click', () => renameSnapshot(listId));
+                list.parentElement.appendChild(btn);
+            });
+        });
+
         analyzeBtn.addEventListener('click', async () => {
             const code = codeInput.value.trim();
             if (!code) return alert('コードを入力してください。');
@@ -222,7 +247,6 @@
             localStorage.setItem('lastParsedCode', code);
         });
 
-        // ===== 差分解析 =====
         diffBtn.addEventListener('click', async () => {
             const oldSrc = oldCodeEl.value.trim();
             const newSrc = newCodeEl.value.trim();
@@ -234,67 +258,8 @@
             try {
                 const resp = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
                 day2ResultPre.textContent = JSON.stringify(resp, null, 2);
-                if (!Array.isArray(resp) || resp.length === 0) {
-                    diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag added">差分なし</div></div><div class="note">旧コードと新コードに差分は見つかりませんでした。</div></div>`;
-                } else {
-                    const frag = document.createDocumentFragment();
-                    resp.forEach((entry, idx) => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'diff-entry';
-                        const meta = document.createElement('div');
-                        meta.className = 'diff-meta';
-                        const type = ((entry.type || entry["種類"] || '') + '').toLowerCase();
-                        const tag = document.createElement('span');
-                        tag.className = 'tag ' + (
-                            type.includes('change') || type.includes('modify') ? 'modified' :
-                            type.includes('insert') || type.includes('add') ? 'added' :
-                            type.includes('delete') || type.includes('remove') ? 'removed' : 'modified'
-                        );
-                        let typeLabel = entry.type || '';
-                        if (type.includes('change') || type.includes('modify')) typeLabel = '変更';
-                        else if (type.includes('insert') || type.includes('add')) typeLabel = '追加';
-                        else if (type.includes('delete') || type.includes('remove')) typeLabel = '削除';
-                        else typeLabel = 'その他';
-                        tag.textContent = typeLabel.toUpperCase();
-                        meta.appendChild(tag);
-                        const info = document.createElement('div');
-                        info.style.marginLeft = '8px';
-                        info.style.color = '#374151';
-                        info.style.fontSize = '13px';
-                        info.textContent = `エントリ ${idx + 1} — 元の位置: ${entry["元の位置"] ?? '-'} 変更後位置: ${entry["変更後位置"] ?? '-'}`;
-                        meta.appendChild(info);
-                        wrapper.appendChild(meta);
-                        const linesWrap = document.createElement('div');
-                        linesWrap.style.display = 'flex';
-                        linesWrap.style.gap = '8px';
-                        linesWrap.style.flexWrap = 'wrap';
-                        const srcBlock = document.createElement('div');
-                        srcBlock.style.flex = '1';
-                        srcBlock.style.minWidth = '220px';
-                        srcBlock.style.padding = '8px';
-                        srcBlock.style.borderRadius = '6px';
-                        srcBlock.style.background = 'var(--removed-bg)';
-                        srcBlock.style.border = '1px solid #eef2f7';
-                        srcBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">旧コード</div><div>${Array.isArray(entry["元コード"]) ? entry["元コード"].join('\n') : (entry["元コード"] || '(なし)')}</div>`;
-                        const tgtBlock = document.createElement('div');
-                        tgtBlock.style.flex = '1';
-                        tgtBlock.style.minWidth = '220px';
-                        tgtBlock.style.padding = '8px';
-                        tgtBlock.style.borderRadius = '6px';
-                        tgtBlock.style.background = 'var(--added-bg)';
-                        tgtBlock.style.border = '1px solid #eef2f7';
-                        tgtBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">新コード</div><div>${Array.isArray(entry["新コード"]) ? entry["新コード"].join('\n') : (entry["新コード"] || '(なし)')}</div>`;
-                        linesWrap.appendChild(srcBlock);
-                        linesWrap.appendChild(tgtBlock);
-                        wrapper.appendChild(linesWrap);
-                        frag.appendChild(wrapper);
-                    });
-                    diffResultsDiv.appendChild(frag);
-                }
-                setStatus('差分解析完了');
             } catch (err) {
                 day2ResultPre.textContent = 'エラー: ' + err.message;
-                diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag removed">ERROR</div></div><div class="note">${err.message}</div></div>`;
                 setStatus('差分解析エラー', true);
             } finally {
                 diffBtn.disabled = false;
