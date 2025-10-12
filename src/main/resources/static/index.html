@@ -23,42 +23,20 @@
         header p{margin:0;color:var(--muted);font-size:13px;}
         .grid{display:grid;grid-template-columns:1fr;gap:16px;}
         @media(min-width:1000px){ .grid{grid-template-columns: 1fr 1fr;} }
-
-        .card{
-            background:var(--panel);
-            padding:14px;
-            border-radius:var(--radius);
-            box-shadow:var(--card-shadow);
-        }
+        .card{background:var(--panel); padding:14px; border-radius:var(--radius); box-shadow:var(--card-shadow);}
         label{display:block;font-weight:600;margin-bottom:8px;}
-        textarea{
-            width:100%;min-height:500px;max-height:80vh;
-            resize:vertical;padding:12px;box-sizing:border-box;
+        textarea{width:100%;min-height:500px;max-height:80vh; resize:vertical;padding:12px;box-sizing:border-box;
             font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-            font-size:13px;border-radius:8px;border:1px solid #e6e9ee;
-            background:#fcfdff;color:#0f172a;
-        }
+            font-size:13px;border-radius:8px;border:1px solid #e6e9ee;background:#fcfdff;color:#0f172a;}
         .controls{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
-        button{
-            background:var(--accent);color:white;border:none;
-            padding:8px 12px;border-radius:8px;cursor:pointer;
-            font-weight:600;box-shadow:0 4px 10px rgba(37,99,235,0.12);
-        }
+        button{background:var(--accent);color:white;border:none; padding:8px 12px;border-radius:8px;cursor:pointer;
+            font-weight:600;box-shadow:0 4px 10px rgba(37,99,235,0.12);}
         button[disabled]{opacity:0.5;cursor:not-allowed;box-shadow:none;}
         .secondary{background:#e5e7eb;color:#111827;box-shadow:none;font-weight:600;}
         .muted{color:var(--muted);font-size:13px}
-        select {
-            padding:6px 8px;
-            border-radius:6px;
-            border:1px solid #d1d5db;
-            background:white;
-            font-size:13px;
-        }
-        pre.result-box{
-            background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;
-            overflow:auto;white-space:pre-wrap;font-family:ui-monospace, monospace;font-size:13px;
-            max-height:70vh;
-        }
+        select {padding:6px 8px;border-radius:6px;border:1px solid #d1d5db;background:white;font-size:13px;}
+        pre.result-box{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap;
+            font-family:ui-monospace, monospace;font-size:13px;max-height:70vh;}
         .diff-entry{border-radius:8px;padding:10px;border:1px solid #e6edf6;background:#fff;}
         .diff-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
         .tag{padding:4px 8px;border-radius:6px;font-weight:700;font-size:12px}
@@ -162,11 +140,18 @@
             return res.json();
         }
 
-        // ===== スナップショット（共通履歴）管理 =====
+        // ===== スナップショット管理（最大10件・名前変更対応） =====
         function saveSnapshot(code) {
             if (!code || !code.trim()) return alert('空のコードは保存できません。');
+            const name = prompt('スナップショット名を入力してください（未入力の場合は日時）') || new Date().toISOString();
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            all.push({ id: new Date().toISOString(), code });
+
+            // 新しいスナップショットを追加
+            all.push({ id: new Date().toISOString(), name, code });
+
+            // 上限10件に制限（古いものを削除）
+            while (all.length > 10) all.shift();
+
             localStorage.setItem('snapshots', JSON.stringify(all));
             updateSnapshotLists();
             setStatus('スナップショットを保存しました');
@@ -183,7 +168,7 @@
             const opts = all.slice().reverse().map(s => {
                 const opt = document.createElement('option');
                 opt.value = s.id;
-                opt.textContent = s.id.replace('T',' ').slice(0,19);
+                opt.textContent = s.name;
                 return opt;
             });
             lists.forEach(list => {
