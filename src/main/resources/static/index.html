@@ -164,56 +164,52 @@
             return res.json();
         }
 
-        // ===== スナップショット（複数）管理 =====
-        function saveSnapshot(type, code) {
+        // ===== スナップショット（共通履歴）管理 =====
+        function saveSnapshot(code) {
             if (!code || !code.trim()) return alert('空のコードは保存できません。');
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            all.push({ id: new Date().toISOString(), type, code });
+            all.push({ id: new Date().toISOString(), code });
             localStorage.setItem('snapshots', JSON.stringify(all));
-            updateSnapshotList(type);
+            updateSnapshotLists();
             setStatus('スナップショットを保存しました');
             setTimeout(()=>setStatus(''),1600);
         }
 
-        function updateSnapshotList(type) {
-            const list = document.getElementById(`snapshotList-${type}`);
-            if (!list) return;
+        function updateSnapshotLists() {
+            const lists = [
+                document.getElementById('snapshotList-structure'),
+                document.getElementById('snapshotList-diff-old'),
+                document.getElementById('snapshotList-diff-new')
+            ].filter(Boolean);
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
-            list.innerHTML = '<option value="">▼ 過去のスナップショット</option>';
-            all.filter(s => s.type === type)
-                .reverse()
-                .forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    opt.textContent = s.id.replace('T', ' ').slice(0, 19);
-                    list.appendChild(opt);
-                });
+            const opts = all.slice().reverse().map(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.id.replace('T',' ').slice(0,19);
+                return opt;
+            });
+            lists.forEach(list => {
+                list.innerHTML = '<option value="">▼ 過去のスナップショット</option>';
+                opts.forEach(o => list.appendChild(o.cloneNode(true)));
+            });
         }
 
-        function loadSnapshotFromList(type) {
-            const list = document.getElementById(`snapshotList-${type}`);
-            if (!list) return;
+        function loadSnapshotTo(targetId, listId) {
+            const list = document.getElementById(listId);
             const id = list.value;
             if (!id) return;
             const all = JSON.parse(localStorage.getItem('snapshots') || '[]');
             const snap = all.find(s => s.id === id);
             if (!snap) return;
-            if (type === 'structure') codeInput.value = snap.code;
-            if (type === 'diff-old') oldCodeEl.value = snap.code;
-            if (type === 'diff-new') newCodeEl.value = snap.code;
+            document.getElementById(targetId).value = snap.code;
             setStatus('スナップショットを復元しました');
             setTimeout(()=>setStatus(''),1600);
         }
 
-        window.addEventListener('load', () => {
-            updateSnapshotList('structure');
-            updateSnapshotList('diff-old');
-            updateSnapshotList('diff-new');
-        });
-
-        document.getElementById('snapshotList-structure').addEventListener('change', ()=>loadSnapshotFromList('structure'));
-        document.getElementById('snapshotList-diff-old').addEventListener('change', ()=>loadSnapshotFromList('diff-old'));
-        document.getElementById('snapshotList-diff-new').addEventListener('change', ()=>loadSnapshotFromList('diff-new'));
+        window.addEventListener('load', updateSnapshotLists);
+        document.getElementById('snapshotList-structure').addEventListener('change',()=>loadSnapshotTo('code-input','snapshotList-structure'));
+        document.getElementById('snapshotList-diff-old').addEventListener('change',()=>loadSnapshotTo('day2-old-code','snapshotList-diff-old'));
+        document.getElementById('snapshotList-diff-new').addEventListener('change',()=>loadSnapshotTo('day2-new-code','snapshotList-diff-new'));
 
         // ===== 構造解析送信 =====
         analyzeBtn.addEventListener('click', async () => {
@@ -225,7 +221,6 @@
             try {
                 const data = await postJson('/api/analysis/parse-structure', { code });
                 day1ResultPre.textContent = JSON.stringify(data, null, 2);
-                // 既存の挙動を維持：解析成功時に単発スナップショットキーも保存
                 localStorage.setItem('lastParsedCode', code);
                 setStatus('構造解析完了');
             } catch (err) {
@@ -237,27 +232,12 @@
             }
         });
 
-        // ===== 旧仕様の単発保存互換（ボタン動作は見た目そのまま） =====
         saveSnapshotBtn.addEventListener('click', () => {
             const code = codeInput.value.trim();
             if (!code) return alert('保存するコードが空です。');
-            // 複数保存（新機能）
-            saveSnapshot('structure', code);
-            // 互換性のため、従来の単発キーもセット
+            saveSnapshot(code);
             localStorage.setItem('lastParsedCode', code);
         });
-
-        // ===== 復元ボタン（旧仕様と互換） =====
-        function restoreSnapshot(target) {
-            const snap = localStorage.getItem('lastParsedCode');
-            if (!snap) return alert('保存されたスナップショットがありません。');
-            target.value = snap;
-            setStatus('スナップショットを復元しました');
-            setTimeout(()=>setStatus(''),1600);
-        }
-        document.getElementById('restore-structure').addEventListener('click', ()=>restoreSnapshot(codeInput));
-        document.getElementById('restore-old').addEventListener('click', ()=>restoreSnapshot(oldCodeEl));
-        document.getElementById('restore-new').addEventListener('click', ()=>restoreSnapshot(newCodeEl));
 
         // ===== 差分解析 =====
         diffBtn.addEventListener('click', async () => {
@@ -268,26 +248,16 @@
             setStatus('差分解析中…');
             day2ResultPre.textContent = '';
             diffResultsDiv.innerHTML = '';
-
             try {
                 const resp = await postJson('/api/diff', { oldSource: oldSrc, newSource: newSrc });
-
-                // JSONの生データ表示
                 day2ResultPre.textContent = JSON.stringify(resp, null, 2);
-
                 if (!Array.isArray(resp) || resp.length === 0) {
-                    diffResultsDiv.innerHTML = `
-                        <div class="diff-entry">
-                            <div class="diff-meta"><div class="tag added">差分なし</div></div>
-                            <div class="note">旧コードと新コードに差分は見つかりませんでした。</div>
-                        </div>`;
+                    diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag added">差分なし</div></div><div class="note">旧コードと新コードに差分は見つかりませんでした。</div></div>`;
                 } else {
                     const frag = document.createDocumentFragment();
                     resp.forEach((entry, idx) => {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'diff-entry';
-
-                        // メタ情報
                         const meta = document.createElement('div');
                         meta.className = 'diff-meta';
                         const type = ((entry.type || entry["種類"] || '') + '').toLowerCase();
@@ -297,32 +267,24 @@
                             type.includes('insert') || type.includes('add') ? 'added' :
                             type.includes('delete') || type.includes('remove') ? 'removed' : 'modified'
                         );
-
                         let typeLabel = entry.type || '';
                         if (type.includes('change') || type.includes('modify')) typeLabel = '変更';
                         else if (type.includes('insert') || type.includes('add')) typeLabel = '追加';
                         else if (type.includes('delete') || type.includes('remove')) typeLabel = '削除';
                         else typeLabel = 'その他';
                         tag.textContent = typeLabel.toUpperCase();
-
                         meta.appendChild(tag);
-
                         const info = document.createElement('div');
                         info.style.marginLeft = '8px';
                         info.style.color = '#374151';
                         info.style.fontSize = '13px';
                         info.textContent = `エントリ ${idx + 1} — 元の位置: ${entry["元の位置"] ?? '-'} 変更後位置: ${entry["変更後位置"] ?? '-'}`;
                         meta.appendChild(info);
-
                         wrapper.appendChild(meta);
-
-                        // 差分ブロック
                         const linesWrap = document.createElement('div');
                         linesWrap.style.display = 'flex';
                         linesWrap.style.gap = '8px';
                         linesWrap.style.flexWrap = 'wrap';
-
-                        // 旧コード
                         const srcBlock = document.createElement('div');
                         srcBlock.style.flex = '1';
                         srcBlock.style.minWidth = '220px';
@@ -331,8 +293,6 @@
                         srcBlock.style.background = 'var(--removed-bg)';
                         srcBlock.style.border = '1px solid #eef2f7';
                         srcBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">旧コード</div><div>${Array.isArray(entry["元コード"]) ? entry["元コード"].join('\n') : (entry["元コード"] || '(なし)')}</div>`;
-
-                        // 新コード
                         const tgtBlock = document.createElement('div');
                         tgtBlock.style.flex = '1';
                         tgtBlock.style.minWidth = '220px';
@@ -341,7 +301,6 @@
                         tgtBlock.style.background = 'var(--added-bg)';
                         tgtBlock.style.border = '1px solid #eef2f7';
                         tgtBlock.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">新コード</div><div>${Array.isArray(entry["新コード"]) ? entry["新コード"].join('\n') : (entry["新コード"] || '(なし)')}</div>`;
-
                         linesWrap.appendChild(srcBlock);
                         linesWrap.appendChild(tgtBlock);
                         wrapper.appendChild(linesWrap);
@@ -349,24 +308,17 @@
                     });
                     diffResultsDiv.appendChild(frag);
                 }
-
                 setStatus('差分解析完了');
             } catch (err) {
-                console.error(err);
                 day2ResultPre.textContent = 'エラー: ' + err.message;
-                diffResultsDiv.innerHTML = `
-                    <div class="diff-entry">
-                        <div class="diff-meta"><div class="tag removed">ERROR</div></div>
-                        <div class="note">${err.message}</div>
-                    </div>`;
+                diffResultsDiv.innerHTML = `<div class="diff-entry"><div class="diff-meta"><div class="tag removed">ERROR</div></div><div class="note">${err.message}</div></div>`;
                 setStatus('差分解析エラー', true);
             } finally {
                 diffBtn.disabled = false;
-                setTimeout(()=>setStatus(''), 2200);
+                setTimeout(()=>setStatus(''),2200);
             }
         });
 
-        // ===== 入力クリア =====
         clearBtn.addEventListener('click', () => {
             if (!confirm('入力欄をすべてクリアしますか？')) return;
             codeInput.value = '';
